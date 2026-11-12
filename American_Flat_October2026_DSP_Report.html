@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>American Flat US — October 2026 DSP EOM Report</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:#0b0f18;--surface:#131928;--surface2:#1a2236;--border:#252f45;
+    --accent:#3b7ff5;--accent2:#6c3df5;--green:#22c55e;--amber:#f59e0b;
+    --red:#ef4444;--cyan:#22d3ee;--text:#e8edf7;--muted:#7a8aaa;
+    --purple:#a78bfa;--promoted:#f59e0b;--halo:#a78bfa;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Inter','Segoe UI',system-ui,sans-serif;min-height:100vh;font-size:14px}
+  .topnav{position:sticky;top:0;z-index:100;background:rgba(11,15,24,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(8px);display:flex;align-items:center;gap:12px;padding:0 28px;height:56px}
+  .topnav .logo{font-weight:800;font-size:15px;letter-spacing:.04em;color:var(--accent);margin-right:8px;display:flex;align-items:center;gap:8px}
+  .topnav .logo span{color:var(--text);font-weight:500}
+  .topnav .report-title{font-size:13px;color:var(--muted)}
+  .topnav .spacer{flex:1}
+  .topnav .timestamp{font-size:11px;color:var(--muted);background:var(--surface2);border-radius:6px;padding:4px 10px;border:1px solid var(--border)}
+  .launch-badge{font-size:10px;font-weight:700;letter-spacing:.05em;background:linear-gradient(135deg,#3b7ff522,#3b7ff544);color:var(--accent);border:1px solid var(--accent);border-radius:20px;padding:3px 10px;text-transform:uppercase}
+  .tab-bar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:0;padding:0 28px;overflow-x:auto}
+  .tab-btn{padding:14px 18px;font-size:13px;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+  .tab-btn:hover{color:var(--text)}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .tab-content{display:none}
+  .tab-content.active{display:block}
+  .page{padding:28px;max-width:1440px;margin:0 auto}
+  .section{margin-bottom:32px}
+  .section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+  .hero-header{background:linear-gradient(135deg,var(--surface) 0%,#1a2540 100%);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:24px;display:flex;align-items:center;gap:24px}
+  .hero-header h1{font-size:24px;font-weight:800}
+  .hero-header .sub{font-size:13px;color:var(--muted);margin-top:4px}
+  .hero-header .dsp-pill{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--cyan);background:#22d3ee15;border:1px solid #22d3ee44;border-radius:20px;padding:4px 12px;margin-top:8px;display:inline-block}
+  .hero-header .accent-line{width:4px;height:56px;background:linear-gradient(to bottom,var(--accent),var(--accent2));border-radius:4px;flex-shrink:0}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:12px}
+  .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;transition:border-color .2s}
+  .kpi-card:hover{border-color:var(--accent)}
+  .kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px}
+  .kpi-value{font-size:24px;font-weight:800;line-height:1;color:var(--text)}
+  .kpi-value.accent{color:var(--accent)}
+  .kpi-value.green{color:var(--green)}
+  .kpi-value.amber{color:var(--amber)}
+  .kpi-sub{font-size:11px;color:var(--muted);margin-top:4px}
+  .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .chart-grid.three{grid-template-columns:1fr 1fr 1fr}
+  .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+  .chart-card.full{grid-column:1/-1}
+  .chart-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:16px}
+  .chart-container{position:relative}
+  .chart-container.tall{height:300px}
+  .chart-container.short{height:220px}
+  .chart-container.xtall{height:380px}
+  .data-table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:auto}
+  .data-table{width:100%;border-collapse:collapse;border-spacing:0;font-size:12px;table-layout:auto}
+  .data-table thead{position:sticky;top:0;z-index:2}
+  .data-table thead tr{background:var(--surface2)}
+  .data-table th{
+    padding:10px 16px;
+    text-align:left;
+    font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+    border-bottom:2px solid var(--border);
+    border-right:1px solid var(--border);
+    white-space:nowrap;
+    vertical-align:middle;
+  }
+  .data-table th:last-child{border-right:none}
+  .data-table td{
+    padding:10px 16px;
+    border-bottom:1px solid var(--border);
+    border-right:1px solid var(--border);
+    color:var(--text);
+    vertical-align:middle;
+    white-space:nowrap;
+  }
+  .data-table td:last-child{border-right:none}
+  .data-table tbody tr:last-child td{border-bottom:none}
+  .data-table tbody tr:hover td{background:var(--surface2)}
+  .data-table th.num{text-align:right}
+  .num{text-align:right;font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  .good{color:var(--green)}
+  .accent-c{color:var(--accent)}
+  .amb{color:var(--amber)}
+  .tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+  .tag-promoted{background:#f59e0b22;color:var(--promoted);border:1px solid #f59e0b44}
+  .tag-halo{background:#a78bfa22;color:var(--halo);border:1px solid #a78bfa44}
+  .insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+  .insight-card{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:16px}
+  .insight-card.g{border-left-color:var(--green)}
+  .insight-card.a{border-left-color:var(--amber)}
+  .insight-card.r{border-left-color:var(--red)}
+  .insight-card .il{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+  .insight-card .iv{font-size:22px;font-weight:800;color:var(--text)}
+  .insight-card .id{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
+  .callout{margin-top:12px;padding:14px 16px;background:var(--surface2);border-radius:8px;font-size:12px;color:var(--muted);line-height:1.6}
+  .prod-cell{max-width:320px;white-space:normal;word-break:break-word;line-height:1.4}
+  .data-table td.prod-cell{white-space:normal}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  @media(max-width:900px){.chart-grid,.chart-grid.three,.insight-grid{grid-template-columns:1fr}.chart-card.full{grid-column:1}}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="logo">SP <span>SellerPlex</span></div>
+  <div class="report-title">American Flat US — October 2026 DSP EOM Report</div>
+  <div class="spacer"></div>
+  <div class="launch-badge">🧩 Full Month Active</div>
+  <div class="timestamp">Campaign Period: October 1–31, 2026</div>
+</nav>
+
+<div class="tab-bar" id="tabbar"></div>
+
+<div id="app"></div>
+
+<script id="dashboard-data" type="application/json">{"daily": [{"date": "2026-10-01", "cost": 197.23999999999995, "impressions": 81647.0, "viewable": 56193.0, "dpv": 371.0, "atc": 91.0, "purchases": 57.0, "purch_views": 57.0, "purch_clicks": 0.0, "ntb": 49.0, "sales": 1669.86, "roas": 8.466132630298116}, {"date": "2026-10-02", "cost": 361.42, "impressions": 165428.0, "viewable": 108201.0, "dpv": 276.0, "atc": 78.0, "purchases": 49.0, "purch_views": 49.0, "purch_clicks": 0.0, "ntb": 36.0, "sales": 1424.95, "roas": 3.942642908527475}, {"date": "2026-10-03", "cost": 345.27, "impressions": 144762.0, "viewable": 76645.0, "dpv": 258.0, "atc": 83.0, "purchases": 41.0, "purch_views": 41.0, "purch_clicks": 0.0, "ntb": 30.0, "sales": 1039.51, "roas": 3.010716251049903}, {"date": "2026-10-04", "cost": 372.72, "impressions": 150137.0, "viewable": 86872.0, "dpv": 341.0, "atc": 102.0, "purchases": 33.0, "purch_views": 33.0, "purch_clicks": 0.0, "ntb": 25.0, "sales": 1138.96, "roas": 3.0558059669456963}, {"date": "2026-10-05", "cost": 330.15, "impressions": 137111.0, "viewable": 80329.0, "dpv": 336.0, "atc": 73.0, "purchases": 38.0, "purch_views": 37.0, "purch_clicks": 1.0, "ntb": 25.0, "sales": 1206.48, "roas": 3.654338936846888}, {"date": "2026-10-06", "cost": 329.52, "impressions": 128356.0, "viewable": 71230.0, "dpv": 601.0, "atc": 187.0, "purchases": 80.0, "purch_views": 80.0, "purch_clicks": 0.0, "ntb": 68.0, "sales": 2099.54, "roas": 6.371510075260986}, {"date": "2026-10-07", "cost": 331.70000000000005, "impressions": 135211.0, "viewable": 74555.0, "dpv": 461.0, "atc": 138.0, "purchases": 56.0, "purch_views": 56.0, "purch_clicks": 0.0, "ntb": 45.0, "sales": 1724.7700000000002, "roas": 5.199788965933072}, {"date": "2026-10-08", "cost": 335.59, "impressions": 151814.0, "viewable": 96410.0, "dpv": 283.0, "atc": 53.0, "purchases": 33.0, "purch_views": 33.0, "purch_clicks": 0.0, "ntb": 28.0, "sales": 852.7200000000001, "roas": 2.5409577162609143}, {"date": "2026-10-09", "cost": 334.08000000000004, "impressions": 142322.0, "viewable": 88194.0, "dpv": 196.0, "atc": 42.0, "purchases": 28.0, "purch_views": 28.0, "purch_clicks": 0.0, "ntb": 23.0, "sales": 795.52, "roas": 2.381226053639846}, {"date": "2026-10-10", "cost": 326.8, "impressions": 142703.0, "viewable": 87287.0, "dpv": 192.0, "atc": 44.0, "purchases": 20.0, "purch_views": 20.0, "purch_clicks": 0.0, "ntb": 16.0, "sales": 587.4, "roas": 1.7974296205630353}, {"date": "2026-10-11", "cost": 335.21999999999997, "impressions": 156935.0, "viewable": 100988.0, "dpv": 229.0, "atc": 63.0, "purchases": 31.0, "purch_views": 31.0, "purch_clicks": 0.0, "ntb": 26.0, "sales": 864.01, "roas": 2.5774416800906867}, {"date": "2026-10-12", "cost": 332.16999999999996, "impressions": 159673.0, "viewable": 108889.0, "dpv": 219.0, "atc": 56.0, "purchases": 26.0, "purch_views": 26.0, "purch_clicks": 0.0, "ntb": 14.0, "sales": 759.8199999999999, "roas": 2.2874431766866365}, {"date": "2026-10-13", "cost": 318.46999999999997, "impressions": 151452.0, "viewable": 99209.0, "dpv": 231.0, "atc": 38.0, "purchases": 31.0, "purch_views": 31.0, "purch_clicks": 0.0, "ntb": 24.0, "sales": 745.77, "roas": 2.3417276352560683}, {"date": "2026-10-14", "cost": 356.96999999999997, "impressions": 151686.0, "viewable": 99324.0, "dpv": 184.0, "atc": 42.0, "purchases": 18.0, "purch_views": 17.0, "purch_clicks": 1.0, "ntb": 12.0, "sales": 439.71999999999997, "roas": 1.231812197103398}, {"date": "2026-10-15", "cost": 318.28000000000003, "impressions": 145304.0, "viewable": 94854.0, "dpv": 190.0, "atc": 43.0, "purchases": 22.0, "purch_views": 22.0, "purch_clicks": 0.0, "ntb": 11.0, "sales": 872.09, "roas": 2.740008797285409}, {"date": "2026-10-16", "cost": 334.32, "impressions": 145693.0, "viewable": 96942.0, "dpv": 211.0, "atc": 34.0, "purchases": 20.0, "purch_views": 20.0, "purch_clicks": 0.0, "ntb": 14.0, "sales": 403.07, "roas": 1.2056413017468295}, {"date": "2026-10-17", "cost": 320.02, "impressions": 135807.0, "viewable": 90511.0, "dpv": 206.0, "atc": 34.0, "purchases": 22.0, "purch_views": 22.0, "purch_clicks": 0.0, "ntb": 18.0, "sales": 509.38, "roas": 1.591713017936379}, {"date": "2026-10-18", "cost": 340.25, "impressions": 148975.0, "viewable": 107196.0, "dpv": 147.0, "atc": 42.0, "purchases": 25.0, "purch_views": 25.0, "purch_clicks": 0.0, "ntb": 14.0, "sales": 595.9599999999999, "roas": 1.7515356355620866}, {"date": "2026-10-19", "cost": 383.75, "impressions": 152188.0, "viewable": 99046.0, "dpv": 166.0, "atc": 34.0, "purchases": 27.0, "purch_views": 27.0, "purch_clicks": 0.0, "ntb": 23.0, "sales": 599.1, "roas": 1.5611726384364821}, {"date": "2026-10-20", "cost": 317.53, "impressions": 135117.0, "viewable": 80255.0, "dpv": 178.0, "atc": 31.0, "purchases": 23.0, "purch_views": 23.0, "purch_clicks": 0.0, "ntb": 18.0, "sales": 491.39, "roas": 1.547538815230057}, {"date": "2026-10-21", "cost": 332.41999999999996, "impressions": 143358.0, "viewable": 83619.0, "dpv": 176.0, "atc": 44.0, "purchases": 31.0, "purch_views": 31.0, "purch_clicks": 0.0, "ntb": 23.0, "sales": 842.48, "roas": 2.534384212742916}, {"date": "2026-10-22", "cost": 323.84000000000003, "impressions": 132950.0, "viewable": 82528.0, "dpv": 171.0, "atc": 43.0, "purchases": 20.0, "purch_views": 20.0, "purch_clicks": 0.0, "ntb": 14.0, "sales": 447.28000000000003, "roas": 1.3811758893280632}, {"date": "2026-10-23", "cost": 336.95, "impressions": 147339.0, "viewable": 81717.0, "dpv": 149.0, "atc": 31.0, "purchases": 13.0, "purch_views": 13.0, "purch_clicks": 0.0, "ntb": 10.0, "sales": 353.62, "roas": 1.0494732156106248}, {"date": "2026-10-24", "cost": 330.12999999999994, "impressions": 141054.0, "viewable": 73489.0, "dpv": 167.0, "atc": 60.0, "purchases": 25.0, "purch_views": 25.0, "purch_clicks": 0.0, "ntb": 21.0, "sales": 607.24, "roas": 1.839396601338867}, {"date": "2026-10-25", "cost": 335.00000000000006, "impressions": 144746.0, "viewable": 70692.0, "dpv": 117.0, "atc": 24.0, "purchases": 11.0, "purch_views": 11.0, "purch_clicks": 0.0, "ntb": 9.0, "sales": 254.85000000000002, "roas": 0.7607462686567164}, {"date": "2026-10-26", "cost": 335.01000000000005, "impressions": 150891.0, "viewable": 92313.0, "dpv": 110.0, "atc": 40.0, "purchases": 19.0, "purch_views": 19.0, "purch_clicks": 0.0, "ntb": 13.0, "sales": 447.92, "roas": 1.3370347153816302}, {"date": "2026-10-27", "cost": 307.55999999999995, "impressions": 134725.0, "viewable": 76943.0, "dpv": 130.0, "atc": 32.0, "purchases": 18.0, "purch_views": 18.0, "purch_clicks": 0.0, "ntb": 17.0, "sales": 454.61000000000007, "roas": 1.4781180907790354}, {"date": "2026-10-28", "cost": 335.8, "impressions": 134106.0, "viewable": 83363.0, "dpv": 167.0, "atc": 42.0, "purchases": 26.0, "purch_views": 26.0, "purch_clicks": 0.0, "ntb": 17.0, "sales": 747.97, "roas": 2.2274270399047054}, {"date": "2026-10-29", "cost": 339.84000000000003, "impressions": 140675.0, "viewable": 86254.0, "dpv": 167.0, "atc": 46.0, "purchases": 25.0, "purch_views": 25.0, "purch_clicks": 0.0, "ntb": 18.0, "sales": 575.96, "roas": 1.6947975517890772}, {"date": "2026-10-30", "cost": 211.83, "impressions": 87301.0, "viewable": 52376.0, "dpv": 139.0, "atc": 27.0, "purchases": 18.0, "purch_views": 17.0, "purch_clicks": 1.0, "ntb": 14.0, "sales": 469.28000000000003, "roas": 2.2153613746872494}, {"date": "2026-10-31", "cost": 194.91000000000003, "impressions": 79781.0, "viewable": 47607.0, "dpv": 128.0, "atc": 30.0, "purchases": 13.0, "purch_views": 13.0, "purch_clicks": 0.0, "ntb": 10.0, "sales": 291.94, "roas": 1.497819506438869}], "kpi": {"cost": 10004.76, "impressions": 4299247.0, "viewable": 2634031.0, "dpv": 6897.0, "atc": 1727.0, "purchases": 899.0, "purch_views": 896.0, "purch_clicks": 3.0, "ntb": 685.0, "sales": 24313.17, "roas": 2.430160243723987, "ecpm": 3.798269648307101, "dpvr": 0.1604234415933767, "viewability": 61.267263778982695, "pct_ntb": 76.19577308120134, "existing": 214.0}, "order_table": [{"order": "24x36 Poster Frame - Consideration - VCR - OLV - Contextual KW Targeting", "cost": 2000.6900000000003, "sales": 10306.18, "purchases": 319.0, "purch_views": 318.0, "purch_clicks": 1.0, "ntb": 218.0, "atc": 700.0, "roas": 5.151312797085005, "pct_ntb": 68.3385579937304}, {"order": "Kids Artwork Frame - Consideration - VCR - OLV - LS Interested in Early Learning", "cost": 2000.51, "sales": 3850.0899999999997, "purchases": 160.0, "purch_views": 160.0, "purch_clicks": 0.0, "ntb": 114.0, "atc": 347.0, "roas": 1.9245542386691392, "pct_ntb": 71.25}, {"order": "Large Flag Display Case - Consideration - VCR - OLV - Contextual KW Targeting", "cost": 2000.6699999999998, "sales": 2880.169999999999, "purchases": 109.0, "purch_views": 109.0, "purch_clicks": 0.0, "ntb": 90.0, "atc": 189.0, "roas": 1.4396027330844163, "pct_ntb": 82.56880733944955}, {"order": "Jersey Display Case - Consideration - VCR - OLV - IM Toys & Games Collectible Display & Storage", "cost": 2001.4699999999998, "sales": 1990.6299999999999, "purchases": 100.0, "purch_views": 100.0, "purch_clicks": 0.0, "ntb": 84.0, "atc": 153.0, "roas": 0.994583980774131, "pct_ntb": 84.0}, {"order": "Toy Car Display Case - Consideration - VCR - OLV - IM - Hobby Display Cases", "cost": 2001.4100000000003, "sales": 954.5800000000002, "purchases": 42.0, "purch_views": 41.0, "purch_clicks": 1.0, "ntb": 29.0, "atc": 74.0, "roas": 0.4769537476079364, "pct_ntb": 69.04761904761905}], "asin_daily": {"dates": ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30", "2026-10-31"], "promoted_sales": [787.04, 411.88, 340.3, 241.36, 310.07, 506.04, 398.16, 181.85, 106.97, 151.49, 86.41, 44.4, 157.09, 31.44, 31.0, 0.0, 33.14, 31.44, 62.88, 66.28, 0.0, 38.99, 99.42, 62.88, 38.99, 0.0, 72.13, 33.14, 19.53, 0.0, 38.99], "halo_sales": [831.82, 942.08, 603.02, 897.6, 852.41, 1322.2, 1133.38, 608.31, 649.57, 415.92, 548.42, 553.93, 510.51, 382.28, 729.54, 276.08, 385.31, 426.89, 423.11, 310.2, 607.37, 353.79, 223.51, 374.68, 163.83, 320.96, 196.17, 428.19, 393.51, 349.0, 136.65], "promoted_purchases": [28.0, 13.0, 13.0, 10.0, 11.0, 27.0, 13.0, 7.0, 5.0, 4.0, 4.0, 2.0, 5.0, 1.0, 1.0, 0.0, 1.0, 1.0, 3.0, 2.0, 0.0, 1.0, 3.0, 2.0, 1.0, 0.0, 2.0, 1.0, 1.0, 0.0, 1.0], "halo_purchases": [27.0, 34.0, 23.0, 23.0, 24.0, 41.0, 38.0, 22.0, 22.0, 15.0, 20.0, 20.0, 21.0, 15.0, 17.0, 14.0, 17.0, 19.0, 19.0, 15.0, 21.0, 15.0, 9.0, 16.0, 7.0, 14.0, 9.0, 13.0, 16.0, 15.0, 5.0]}, "tot_type": {"Brand halo": {"sales": 16350.24, "purchases": 586.0, "ntb": 422.0}, "Promoted": {"sales": 4383.3099999999995, "purchases": 163.0, "ntb": 151.0}}, "asin_list_count": 621, "promoted_top": [{"asin": "Unallocated", "product": null, "type": "Promoted", "parent": null, "sales": 6365.139999999999, "purchases": 219.0, "purch_views": 219.0, "purch_clicks": 0.0, "atc": 0.0, "ntb": 174.0, "pct_ntb": 79.45205479452055}, {"asin": "B09ZK7V5F8", "product": "Americanflat 24x36 Poster Frame - Slim Molding - Black", "type": "Promoted", "parent": "B0GL2Q37SM", "sales": 974.64, "purchases": 28.0, "purch_views": 27.0, "purch_clicks": 1.0, "atc": 60.0, "ntb": 27.0, "pct_ntb": 96.42857142857143}, {"asin": "B079MFL1VL", "product": "Americanflat Large Flag Display Case for Folded 5x9.5' Burial Flags - Engineered Wood Display Box for Wall or Tabletop - Silhouette Collection - Mahogany", "type": "Promoted", "parent": "B0GQJ5JG2W", "sales": 737.33, "purchases": 24.0, "purch_views": 24.0, "purch_clicks": 0.0, "atc": 32.0, "ntb": 22.0, "pct_ntb": 91.66666666666666}, {"asin": "B095BX6BTS", "product": "Americanflat 8.5x11 Changeable Kids Art Frame - White", "type": "Promoted", "parent": "B0HBNJ6N9L", "sales": 455.66999999999996, "purchases": 24.0, "purch_views": 24.0, "purch_clicks": 0.0, "atc": 68.0, "ntb": 20.0, "pct_ntb": 83.33333333333334}, {"asin": "B07QTZB6C3", "product": "Americanflat Large Flag Display Case for Folded 5x9.5' Burial Flags - Engineered Wood Display Box for Wall or Tabletop - Silhouette Collection - Black", "type": "Promoted", "parent": "B0GQJ5JG2W", "sales": 311.92, "purchases": 8.0, "purch_views": 8.0, "purch_clicks": 0.0, "atc": 16.0, "ntb": 8.0, "pct_ntb": 100.0}, {"asin": "B08YBKHKXB", "product": "Americanflat 8.5x11 Changeable Kids Art Frame - Dark Oak", "type": "Promoted", "parent": "B0HBNJ6N9L", "sales": 288.81, "purchases": 16.0, "purch_views": 16.0, "purch_clicks": 0.0, "atc": 39.0, "ntb": 15.0, "pct_ntb": 93.75}, {"asin": "B07J9PK3JJ", "product": "Americanflat 8.5x11 Changeable Kids Art Frame - Black", "type": "Promoted", "parent": "B0HBNJ6N9L", "sales": 271.8399999999999, "purchases": 13.0, "purch_views": 13.0, "purch_clicks": 0.0, "atc": 28.0, "ntb": 12.0, "pct_ntb": 92.3076923076923}, {"asin": "B08K3S4RX1", "product": "Americanflat Large Flag Display Case for Folded 5x9.5' Burial Flags - Engineered Wood Display Box for Wall or Tabletop - Silhouette Collection - Barn Wood", "type": "Promoted", "parent": "B0GQJ5JG2W", "sales": 143.96, "purchases": 4.0, "purch_views": 3.0, "purch_clicks": 1.0, "atc": 11.0, "ntb": 4.0, "pct_ntb": 100.0}, {"asin": "B08Y9BJL96", "product": "Americanflat 8.5x11 Changeable Kids Art Frame - Driftwood", "type": "Promoted", "parent": "B0HBNJ6N9L", "sales": 131.92000000000002, "purchases": 4.0, "purch_views": 4.0, "purch_clicks": 0.0, "atc": 8.0, "ntb": 4.0, "pct_ntb": 100.0}, {"asin": "B0CCK1KDN9", "product": "Americanflat Large Flag Display Case for Folded 5x9.5' Burial Flags - Engineered Wood Display Box for Wall or Tabletop - Silhouette Collection - White", "type": "Promoted", "parent": "B0GQJ5JG2W", "sales": 111.12, "purchases": 3.0, "purch_views": 3.0, "purch_clicks": 0.0, "atc": 7.0, "ntb": 3.0, "pct_ntb": 100.0}], "halo_top": [{"asin": "B071WDG8WV", "product": "Americanflat 24x36 Poster Frame - Engineered Wood - Black", "type": "Brand halo", "parent": "B0GYPYM6PL", "sales": 1890.72, "purchases": 48.0, "purch_views": 48.0, "purch_clicks": 0.0, "atc": 94.0, "ntb": 22.0, "pct_ntb": 45.83333333333333}, {"asin": "B096L3VDGS", "product": "Americanflat 8.5x11 Changeable Kids Art Frame 2-Pack - Black", "type": "Brand halo", "parent": "B0HBNJ6N9L", "sales": 573.78, "purchases": 26.0, "purch_views": 26.0, "purch_clicks": 0.0, "atc": 37.0, "ntb": 22.0, "pct_ntb": 84.61538461538461}, {"asin": "B071LPY3RH", "product": "Americanflat 18x24 Poster Frame - Engineered Wood - Black", "type": "Brand halo", "parent": "B0GYPYM6PL", "sales": 356.84999999999997, "purchases": 13.0, "purch_views": 13.0, "purch_clicks": 0.0, "atc": 44.0, "ntb": 6.0, "pct_ntb": 46.15384615384615}, {"asin": "B07WSWHPS5", "product": "Americanflat 24x36 Poster Frame - Engineered Wood - White", "type": "Brand halo", "parent": "B0GYPYM6PL", "sales": 267.68, "purchases": 5.0, "purch_views": 5.0, "purch_clicks": 0.0, "atc": 20.0, "ntb": 4.0, "pct_ntb": 80.0}, {"asin": "B0CMC7TM9C", "product": "Americanflat 28x40 Wide Poster Frame - Matted to 24x36 - Black | Fits photos, posters and art", "type": "Brand halo", "parent": "B0CP2DB2W8", "sales": 249.95, "purchases": 6.0, "purch_views": 6.0, "purch_clicks": 0.0, "atc": 13.0, "ntb": 4.0, "pct_ntb": 66.66666666666666}, {"asin": "B0CV63LC94", "product": "Americanflat 18x32 Poster Frame - Engineered Wood - Black", "type": "Brand halo", "parent": "B0GYPYM6PL", "sales": 237.93, "purchases": 1.0, "purch_views": 1.0, "purch_clicks": 0.0, "atc": 6.0, "ntb": 1.0, "pct_ntb": 100.0}, {"asin": "B0753JTSPQ", "product": "Americanflat 11x14 Shadow Box Frame - Engineered Wood - Black", "type": "Brand halo", "parent": "B0CSKL4HRB", "sales": 231.01, "purchases": 12.0, "purch_views": 12.0, "purch_clicks": 0.0, "atc": 22.0, "ntb": 11.0, "pct_ntb": 91.66666666666666}, {"asin": "B071LPY75P", "product": "Americanflat 16x20 Poster Frame - Engineered Wood - Black", "type": "Brand halo", "parent": "B0GYPYM6PL", "sales": 214.93999999999997, "purchases": 10.0, "purch_views": 10.0, "purch_clicks": 0.0, "atc": 23.0, "ntb": 6.0, "pct_ntb": 60.0}, {"asin": "B0CLC56W9Y", "product": "Americanflat 11x14 Shadow Box Frame - Engineered Wood - Black", "type": "Brand halo", "parent": "B0GPQ4RHGX", "sales": 199.9, "purchases": 2.0, "purch_views": 2.0, "purch_clicks": 0.0, "atc": 11.0, "ntb": 1.0, "pct_ntb": 50.0}, {"asin": "B00YSHENGS", "product": "Americanflat 11x14 Picture Frame - Matted to 8x10 - Engineered Wood - Black", "type": "Brand halo", "parent": "B0GJDSX4ZY", "sales": 199.82, "purchases": 17.0, "purch_views": 17.0, "purch_clicks": 0.0, "atc": 37.0, "ntb": 12.0, "pct_ntb": 70.58823529411765}], "top15_overall": [{"asin": "Unallocated", "product": null, "type": "Promoted", "parent": null, "sales": 6365.139999999999, "purchases": 219.0, "purch_views": 219.0, "purch_clicks": 0.0, "atc": 0.0, "ntb": 174.0, "pct_ntb": 79.45205479452055}, {"asin": "B071WDG8WV", "product": "Americanflat 24x36 Poster Frame - Engineered Wood - Black", "type": "Brand halo", "parent": "B0GYPYM6PL", "sales": 1890.72, "purchases": 48.0, "purch_views": 48.0, "purch_clicks": 0.0, "atc": 94.0, "ntb": 22.0, "pct_ntb": 45.83333333333333}, {"asin": "B09ZK7V5F8", "product": "Americanflat 24x36 Poster Frame - Slim Molding - Black", "type": "Promoted", "parent": "B0GL2Q37SM", "sales": 974.64, "purchases": 28.0, "purch_views": 27.0, "purch_clicks": 1.0, "atc": 60.0, "ntb": 27.0, "pct_ntb": 96.42857142857143}, {"asin": "B079MFL1VL", "product": "Americanflat Large Flag Display Case for Folded 5x9.5' Burial Flags - Engineered Wood Display Box for Wall or Tabletop - Silhouette Collection - Mahogany", "type": "Promoted", "parent": "B0GQJ5JG2W", "sales": 737.33, "purchases": 24.0, "purch_views": 24.0, "purch_clicks": 0.0, "atc": 32.0, "ntb": 22.0, "pct_ntb": 91.66666666666666}, {"asin": "B096L3VDGS", "product": "Americanflat 8.5x11 Changeable Kids Art Frame 2-Pack - Black", "type": "Brand halo", "parent": "B0HBNJ6N9L", "sales": 573.78, "purchases": 26.0, "purch_views": 26.0, "purch_clicks": 0.0, "atc": 37.0, "ntb": 22.0, "pct_ntb": 84.61538461538461}, {"asin": "B095BX6BTS", "product": "Americanflat 8.5x11 Changeable Kids Art Frame - White", "type": "Promoted", "parent": "B0HBNJ6N9L", "sales": 455.66999999999996, "purchases": 24.0, "purch_views": 24.0, "purch_clicks": 0.0, "atc": 68.0, "ntb": 20.0, "pct_ntb": 83.33333333333334}, {"asin": "B071LPY3RH", "product": "Americanflat 18x24 Poster Frame - Engineered Wood - Black", "type": "Brand halo", "parent": "B0GYPYM6PL", "sales": 356.84999999999997, "purchases": 13.0, "purch_views": 13.0, "purch_clicks": 0.0, "atc": 44.0, "ntb": 6.0, "pct_ntb": 46.15384615384615}, {"asin": "B07QTZB6C3", "product": "Americanflat Large Flag Display Case for Folded 5x9.5' Burial Flags - Engineered Wood Display Box for Wall or Tabletop - Silhouette Collection - Black", "type": "Promoted", "parent": "B0GQJ5JG2W", "sales": 311.92, "purchases": 8.0, "purch_views": 8.0, "purch_clicks": 0.0, "atc": 16.0, "ntb": 8.0, "pct_ntb": 100.0}, {"asin": "B08YBKHKXB", "product": "Americanflat 8.5x11 Changeable Kids Art Frame - Dark Oak", "type": "Promoted", "parent": "B0HBNJ6N9L", "sales": 288.81, "purchases": 16.0, "purch_views": 16.0, "purch_clicks": 0.0, "atc": 39.0, "ntb": 15.0, "pct_ntb": 93.75}, {"asin": "B07J9PK3JJ", "product": "Americanflat 8.5x11 Changeable Kids Art Frame - Black", "type": "Promoted", "parent": "B0HBNJ6N9L", "sales": 271.8399999999999, "purchases": 13.0, "purch_views": 13.0, "purch_clicks": 0.0, "atc": 28.0, "ntb": 12.0, "pct_ntb": 92.3076923076923}, {"asin": "B07WSWHPS5", "product": "Americanflat 24x36 Poster Frame - Engineered Wood - White", "type": "Brand halo", "parent": "B0GYPYM6PL", "sales": 267.68, "purchases": 5.0, "purch_views": 5.0, "purch_clicks": 0.0, "atc": 20.0, "ntb": 4.0, "pct_ntb": 80.0}, {"asin": "B0CMC7TM9C", "product": "Americanflat 28x40 Wide Poster Frame - Matted to 24x36 - Black | Fits photos, posters and art", "type": "Brand halo", "parent": "B0CP2DB2W8", "sales": 249.95, "purchases": 6.0, "purch_views": 6.0, "purch_clicks": 0.0, "atc": 13.0, "ntb": 4.0, "pct_ntb": 66.66666666666666}, {"asin": "B0CV63LC94", "product": "Americanflat 18x32 Poster Frame - Engineered Wood - Black", "type": "Brand halo", "parent": "B0GYPYM6PL", "sales": 237.93, "purchases": 1.0, "purch_views": 1.0, "purch_clicks": 0.0, "atc": 6.0, "ntb": 1.0, "pct_ntb": 100.0}, {"asin": "B0753JTSPQ", "product": "Americanflat 11x14 Shadow Box Frame - Engineered Wood - Black", "type": "Brand halo", "parent": "B0CSKL4HRB", "sales": 231.01, "purchases": 12.0, "purch_views": 12.0, "purch_clicks": 0.0, "atc": 22.0, "ntb": 11.0, "pct_ntb": 91.66666666666666}, {"asin": "B071LPY75P", "product": "Americanflat 16x20 Poster Frame - Engineered Wood - Black", "type": "Brand halo", "parent": "B0GYPYM6PL", "sales": 214.93999999999997, "purchases": 10.0, "purch_views": 10.0, "purch_clicks": 0.0, "atc": 23.0, "ntb": 6.0, "pct_ntb": 60.0}], "lift": {"Total Cost": {"SA Only": 257927.4644, "With DSP": 14117.69296, "DSP Lift": -0.9452648713, "DSP Only": 6550.429106, "DSP_then_SA": 1564.278417, "SA_then_DSP": 6002.985437, "Sort": 1.0}, "Total Product Sales": {"SA Only": 1959218.2, "With DSP": 64768.24, "DSP Lift": -0.9669417934, "DSP Only": 1645.31, "DSP_then_SA": 18274.73, "SA_then_DSP": 44848.2, "Sort": 2.0}, "Total ROAS": {"SA Only": 7.596004577, "With DSP": 4.587735417, "DSP Lift": -0.3960330894, "DSP Only": 0.2511759113, "DSP_then_SA": 11.6825303, "SA_then_DSP": 7.470982642, "Sort": 3.0}, "Total Purchase": {"SA Only": 76823.0, "With DSP": 2189.0, "DSP Lift": -0.9715059292, "DSP Only": 70.0, "DSP_then_SA": 710.0, "SA_then_DSP": 1409.0, "Sort": 4.0}, "NTB Purchases": {"SA Only": 41020.0, "With DSP": 850.0, "DSP Lift": -0.9792784008, "DSP Only": 9.0, "DSP_then_SA": 261.0, "SA_then_DSP": 580.0, "Sort": 5.0}, "NTB Purchase Rate %": {"SA Only": 0.533954675, "With DSP": 0.3883051622, "DSP Lift": -0.2727750494, "DSP Only": 0.1285714286, "DSP_then_SA": 0.3676056338, "SA_then_DSP": 0.4116394606, "Sort": 6.0}, "NTB Sales": {"SA Only": 1053364.3, "With DSP": 27580.85, "DSP Lift": -0.9738164185, "DSP Only": 319.9, "DSP_then_SA": 6871.51, "SA_then_DSP": 20389.44, "Sort": 7.0}}, "seq_summary": {"DSP_only": {"total_users": 851710.0, "purchasers": 10.0, "ntb_purchasers": 9.0, "total_dsp_impressions": 2749376.0, "total_sa_impressions": 0.0, "total_sa_clicks": 0.0, "total_dsp_cost": 6550.429106, "total_sa_spend": 0.0, "total_conversions": 997.0, "total_purchases": 10.0, "total_product_sales": 319.9, "total_all_purchases": 70.0, "total_all_sales": 1645.31, "ntb_purchases": 9.0, "ntb_sales": 319.9, "total_add_to_cart": 18.0, "total_detail_page_views": 114.0, "cost": 6550.429106, "roas": 0.04883649526211665, "ntb_rate": 90.0}, "DSP_then_SA": {"total_users": 21286.0, "purchasers": 315.0, "ntb_purchasers": 254.0, "total_dsp_impressions": 103986.0, "total_sa_impressions": 129702.0, "total_sa_clicks": 1219.0, "total_dsp_cost": 269.57804744, "total_sa_spend": 1294.70037, "total_conversions": 7622.0, "total_purchases": 352.0, "total_product_sales": 9000.740000000002, "total_all_purchases": 710.0, "total_all_sales": 18274.73, "ntb_purchases": 261.0, "ntb_sales": 6871.51, "total_add_to_cart": 55.0, "total_detail_page_views": 2636.0, "cost": 1564.2784174399999, "roas": 5.753924556940476, "ntb_rate": 74.14772727272727}, "SA_only": {"total_users": 4928148.0, "purchasers": 48605.0, "ntb_purchasers": 40061.0, "total_dsp_impressions": 0.0, "total_sa_impressions": 27227413.0, "total_sa_clicks": 246795.0, "total_dsp_cost": 0.0, "total_sa_spend": 257927.46436, "total_conversions": 710716.0, "total_purchases": 52849.0, "total_product_sales": 1349943.54, "total_all_purchases": 76823.0, "total_all_sales": 1959218.1999999997, "ntb_purchases": 41020.0, "ntb_sales": 1053364.3, "total_add_to_cart": 1.0, "total_detail_page_views": 394103.0, "cost": 257927.46436, "roas": 5.233810766719391, "ntb_rate": 77.61736267479044}, "SA_then_DSP": {"total_users": 42684.0, "purchasers": 690.0, "ntb_purchasers": 563.0, "total_dsp_impressions": 158829.0, "total_sa_impressions": 488780.0, "total_sa_clicks": 4654.0, "total_dsp_cost": 671.72175708, "total_sa_spend": 5331.26368, "total_conversions": 18516.0, "total_purchases": 792.0, "total_product_sales": 26120.61, "total_all_purchases": 1409.0, "total_all_sales": 44848.2, "ntb_purchases": 580.0, "ntb_sales": 20389.440000000002, "total_add_to_cart": 35.0, "total_detail_page_views": 8601.0, "cost": 6002.98543708, "roas": 4.351269926236188, "ntb_rate": 73.23232323232324}}, "fsi": {"ad-exposed": {"exposure_type": "ad-exposed", "dpv": 1319317, "atc": 327566, "purchase": 175381, "sales": 4488774.27, "conversion": 1930218, "user_cnt": 561845}, "non-ad-exposed": {"exposure_type": "non-ad-exposed", "dpv": 446659, "atc": 124381, "purchase": 25943, "sales": 629066.24, "conversion": 750062, "user_cnt": 417744}}, "time_rows": {"ad-exposed": {"3 days": 2879, "6 days": 1189, "5 days": 1437, "4 days": 2054, "1 day": 111365, "7+ days": 4478, "2 days": 5303}, "non-ad-exposed": {"1 day": 15693, "4 days": 309, "5 days": 235, "6 days": 213, "3 days": 457, "7+ days": 885, "2 days": 908}}, "ads": [{"group": "1_Single Exposure", "dpv": 9399.0, "sales": 30802.96}, {"group": "2_Double Exposure", "dpv": 3894.0, "sales": 11436.79}, {"group": "3_Multi Exposure (3+)", "dpv": 20966.0, "sales": 63745.34}], "path_groups": {"SB": {"unique_paths": 148, "users": 19981.0, "converting": 1211.0, "revenue": 28846.88, "conv_rate": 6.061, "rev_per_conv": 23.82}, "DSP": {"unique_paths": 170, "users": 892119.0, "converting": 1471.0, "revenue": 44764.06, "conv_rate": 0.165, "rev_per_conv": 30.43}, "SP": {"unique_paths": 61, "users": 4639111.0, "converting": 142122.0, "revenue": 4134251.59, "conv_rate": 3.064, "rev_per_conv": 29.09}}, "top12_paths": [{"path": "SP > SP > SP > SB > SP", "users": 1300.0, "clicks": 23692.0, "impressions": 45.0, "cost": 350.35981, "converting": 185.0, "revenue": 4506.77, "conv_rate": 0.142307692, "rev_per_conv": 24.36091892}, {"path": "SP > SP > SB > SP > SP", "users": 1216.0, "clicks": 21886.0, "impressions": 44.0, "cost": 335.98303, "converting": 170.0, "revenue": 4515.53, "conv_rate": 0.139802632, "rev_per_conv": 26.56194118}, {"path": "SB > SP > SP > SP > SP", "users": 1376.0, "clicks": 23539.0, "impressions": 52.0, "cost": 385.43003, "converting": 181.0, "revenue": 4336.88, "conv_rate": 0.131540698, "rev_per_conv": 23.96066298}, {"path": "SP > SB > SP > SP > SP", "users": 1222.0, "clicks": 21626.0, "impressions": 25.0, "cost": 321.7288, "converting": 156.0, "revenue": 3817.98, "conv_rate": 0.127659574, "rev_per_conv": 24.47423077}, {"path": "SP > SP > SP > SP > SB", "users": 1518.0, "clicks": 26345.0, "impressions": 39.0, "cost": 337.72064, "converting": 176.0, "revenue": 4109.78, "conv_rate": 0.115942029, "rev_per_conv": 23.35102273}, {"path": "DSP > SP > SP > SP > SP", "users": 2703.0, "clicks": 38883.0, "impressions": 3942.0, "cost": 452.08536, "converting": 217.0, "revenue": 6224.66, "conv_rate": 0.080281169, "rev_per_conv": 28.68506912}, {"path": "SD > SP > SP > SP > SP", "users": 18487.0, "clicks": 335786.0, "impressions": 932.0, "cost": 3287.65236, "converting": 1476.0, "revenue": 42397.06, "conv_rate": 0.079839887, "rev_per_conv": 28.72429539}, {"path": "SP > SP > SP > SP > SP", "users": 1295188.0, "clicks": 20024132.0, "impressions": 1362886.0, "cost": 231384.9143, "converting": 98876.0, "revenue": 3015814.94, "conv_rate": 0.076341041, "rev_per_conv": 30.50098042}, {"path": "SP > SD > SP > SP > SP", "users": 7887.0, "clicks": 131768.0, "impressions": 338.0, "cost": 1150.8049, "converting": 558.0, "revenue": 16025.87, "conv_rate": 0.070749334, "rev_per_conv": 28.72019713}, {"path": "SD > SD > SP > SP > SP", "users": 12502.0, "clicks": 216077.0, "impressions": 507.0, "cost": 1915.66928, "converting": 884.0, "revenue": 24315.24, "conv_rate": 0.070708687, "rev_per_conv": 27.5059276}, {"path": "SD > SP > SD > SP > SD", "users": 350.0, "clicks": 5233.0, "impressions": 26.0, "cost": 32.1787, "converting": 22.0, "revenue": 513.86, "conv_rate": 0.062857143, "rev_per_conv": 23.35727273}, {"path": "SD > SP > SP > SP > SD", "users": 1959.0, "clicks": 28467.0, "impressions": 90.0, "cost": 184.16957, "converting": 122.0, "revenue": 3291.68, "conv_rate": 0.062276672, "rev_per_conv": 26.98098361}], "dsp_paths": [{"path": "DSP > DSP > DSP > DSP > DSP", "users": 142085.0, "clicks": 30214.0, "impressions": 1498230.0, "cost": 3636.52991, "converting": 212.0, "revenue": 6426.48, "conv_rate": 0.001492065, "rev_per_conv": 30.31358491}, {"path": "DSP > SP > SP > SP > SP", "users": 2703.0, "clicks": 38883.0, "impressions": 3942.0, "cost": 452.08536, "converting": 217.0, "revenue": 6224.66, "conv_rate": 0.080281169, "rev_per_conv": 28.68506912}, {"path": "DSP > DSP > DSP > SP > SP", "users": 3027.0, "clicks": 28790.0, "impressions": 12350.0, "cost": 348.44486, "converting": 162.0, "revenue": 5657.99, "conv_rate": 0.053518335, "rev_per_conv": 34.9258642}, {"path": "SP > SP > SP > SP > DSP", "users": 2467.0, "clicks": 14563.0, "impressions": 8759.0, "cost": 123.09334, "converting": 103.0, "revenue": 3429.57, "conv_rate": 0.041751115, "rev_per_conv": 33.29679612}, {"path": "DSP", "users": 389659.0, "clicks": 0.0, "impressions": 389659.0, "cost": 1051.12323, "converting": 119.0, "revenue": 2819.27, "conv_rate": 0.000305, "rev_per_conv": 23.69134454}, {"path": "SP > SP > SP > DSP > DSP", "users": 2206.0, "clicks": 11010.0, "impressions": 10448.0, "cost": 121.53242, "converting": 65.0, "revenue": 2231.39, "conv_rate": 0.029465095, "rev_per_conv": 34.32907692}, {"path": "SP > SP > DSP > DSP > DSP", "users": 2832.0, "clicks": 9811.0, "impressions": 15234.0, "cost": 109.9656, "converting": 63.0, "revenue": 2157.24, "conv_rate": 0.022245763, "rev_per_conv": 34.24190476}, {"path": "DSP > DSP > SP > SP > SP", "users": 1163.0, "clicks": 14051.0, "impressions": 2997.0, "cost": 169.27917, "converting": 58.0, "revenue": 1981.98, "conv_rate": 0.049871023, "rev_per_conv": 34.17206897}, {"path": "DSP > DSP > DSP > DSP > SP", "users": 1535.0, "clicks": 12050.0, "impressions": 8351.0, "cost": 164.47782, "converting": 58.0, "revenue": 1949.76, "conv_rate": 0.037785016, "rev_per_conv": 33.61655172}, {"path": "SP > DSP > DSP > DSP > DSP", "users": 2582.0, "clicks": 5445.0, "impressions": 19853.0, "cost": 88.78375, "converting": 42.0, "revenue": 1411.94, "conv_rate": 0.01626646, "rev_per_conv": 33.61761905}, {"path": "DSP > DSP > DSP", "users": 163171.0, "clicks": 0.0, "impressions": 489513.0, "cost": 1190.84494, "converting": 55.0, "revenue": 1286.87, "conv_rate": 0.000337, "rev_per_conv": 23.39763636}, {"path": "SP > DSP > DSP > DSP > SP", "users": 329.0, "clicks": 2838.0, "impressions": 1554.0, "cost": 35.90133, "converting": 16.0, "revenue": 639.34, "conv_rate": 0.048632219, "rev_per_conv": 39.95875}, {"path": "SP > DSP > DSP > DSP", "users": 1925.0, "clicks": 1925.0, "impressions": 5775.0, "cost": 17.55722, "converting": 20.0, "revenue": 564.78, "conv_rate": 0.01038961, "rev_per_conv": 28.239}, {"path": "DSP > SP", "users": 1851.0, "clicks": 1851.0, "impressions": 1851.0, "cost": 5.86046, "converting": 16.0, "revenue": 546.89, "conv_rate": 0.008643976, "rev_per_conv": 34.180625}, {"path": "SP > SP > DSP", "users": 1479.0, "clicks": 2958.0, "impressions": 1479.0, "cost": 9.57237, "converting": 27.0, "revenue": 532.01, "conv_rate": 0.018255578, "rev_per_conv": 19.70407407}, {"path": "DSP > DSP", "users": 109152.0, "clicks": 0.0, "impressions": 218304.0, "cost": 578.03235, "converting": 22.0, "revenue": 505.88, "conv_rate": 0.000202, "rev_per_conv": 22.99454545}, {"path": "SP > DSP", "users": 2655.0, "clicks": 2655.0, "impressions": 2655.0, "cost": 8.29193, "converting": 20.0, "revenue": 487.41, "conv_rate": 0.007532957, "rev_per_conv": 24.3705}, {"path": "DSP > DSP > DSP > DSP", "users": 51747.0, "clicks": 0.0, "impressions": 206988.0, "cost": 520.95085, "converting": 14.0, "revenue": 433.11, "conv_rate": 0.000271, "rev_per_conv": 30.93642857}, {"path": "DSP > SP > SP", "users": 1095.0, "clicks": 2190.0, "impressions": 1095.0, "cost": 4.36779, "converting": 16.0, "revenue": 410.28, "conv_rate": 0.014611872, "rev_per_conv": 25.6425}, {"path": "SP > SP > SP > DSP", "users": 795.0, "clicks": 2385.0, "impressions": 795.0, "cost": 9.79521, "converting": 13.0, "revenue": 406.09, "conv_rate": 0.016352201, "rev_per_conv": 31.23769231}, {"path": "SP > DSP > SP > SP > SP", "users": 209.0, "clicks": 2763.0, "impressions": 337.0, "cost": 27.43924, "converting": 13.0, "revenue": 396.12, "conv_rate": 0.062200957, "rev_per_conv": 30.47076923}, {"path": "DSP > DSP > DSP > SP", "users": 1070.0, "clicks": 1070.0, "impressions": 3210.0, "cost": 8.47008, "converting": 12.0, "revenue": 372.78, "conv_rate": 0.011214953, "rev_per_conv": 31.065}, {"path": "SP > SP > DSP > SP > SP", "users": 168.0, "clicks": 2132.0, "impressions": 295.0, "cost": 21.81704, "converting": 16.0, "revenue": 360.54, "conv_rate": 0.095238095, "rev_per_conv": 22.53375}, {"path": "SP > SP > SP > DSP > SP", "users": 190.0, "clicks": 2038.0, "impressions": 323.0, "cost": 17.24677, "converting": 10.0, "revenue": 313.2, "conv_rate": 0.052631579, "rev_per_conv": 31.32}, {"path": "SP > DSP > DSP", "users": 989.0, "clicks": 989.0, "impressions": 1978.0, "cost": 6.3216, "converting": 10.0, "revenue": 307.22, "conv_rate": 0.010111223, "rev_per_conv": 30.722}, {"path": "DSP > DSP > DSP > SD > SD", "users": 162.0, "clicks": 1296.0, "impressions": 755.0, "cost": 6.04098, "converting": 3.0, "revenue": 293.91, "conv_rate": 0.018518519, "rev_per_conv": 97.97}, {"path": "DSP > SP > SP > SP", "users": 549.0, "clicks": 1647.0, "impressions": 549.0, "cost": 7.06401, "converting": 12.0, "revenue": 277.89, "conv_rate": 0.021857923, "rev_per_conv": 23.1575}, {"path": "SP > SP > DSP > DSP > SP", "users": 105.0, "clicks": 873.0, "impressions": 320.0, "cost": 10.02379, "converting": 7.0, "revenue": 258.76, "conv_rate": 0.066666667, "rev_per_conv": 36.96571429}, {"path": "SP > DSP > DSP > SP > SP", "users": 81.0, "clicks": 860.0, "impressions": 243.0, "cost": 8.1232, "converting": 6.0, "revenue": 219.15, "conv_rate": 0.074074074, "rev_per_conv": 36.525}, {"path": "SP > SP > DSP > DSP", "users": 575.0, "clicks": 1150.0, "impressions": 1150.0, "cost": 3.92564, "converting": 9.0, "revenue": 189.71, "conv_rate": 0.015652174, "rev_per_conv": 21.07888889}, {"path": "DSP > SP > DSP > DSP > DSP", "users": 108.0, "clicks": 387.0, "impressions": 930.0, "cost": 8.46161, "converting": 3.0, "revenue": 166.05, "conv_rate": 0.027777778, "rev_per_conv": 55.35}, {"path": "DSP > DSP > SP", "users": 572.0, "clicks": 572.0, "impressions": 1144.0, "cost": 3.47467, "converting": 7.0, "revenue": 154.72, "conv_rate": 0.012237762, "rev_per_conv": 22.10285714}, {"path": "DSP > DSP > SD > SP > SP", "users": 25.0, "clicks": 417.0, "impressions": 71.0, "cost": 5.43158, "converting": 2.0, "revenue": 149.97, "conv_rate": 0.08, "rev_per_conv": 74.985}, {"path": "SD > SD > DSP > DSP > DSP", "users": 77.0, "clicks": 199.0, "impressions": 391.0, "cost": 1.57799, "converting": 3.0, "revenue": 147.53, "conv_rate": 0.038961039, "rev_per_conv": 49.17666667}, {"path": "DSP > SP > SP > SP > SD", "users": 22.0, "clicks": 411.0, "impressions": 38.0, "cost": 2.24126, "converting": 2.0, "revenue": 114.72, "conv_rate": 0.090909091, "rev_per_conv": 57.36}, {"path": "DSP > DSP > SP > SP", "users": 364.0, "clicks": 728.0, "impressions": 728.0, "cost": 3.4191, "converting": 4.0, "revenue": 100.29, "conv_rate": 0.010989011, "rev_per_conv": 25.0725}, {"path": "DSP > DSP > DSP > SP > SD", "users": 50.0, "clicks": 458.0, "impressions": 198.0, "cost": 2.37437, "converting": 2.0, "revenue": 98.59, "conv_rate": 0.04, "rev_per_conv": 49.295}, {"path": "DSP > SD > SD > SP > SP", "users": 44.0, "clicks": 552.0, "impressions": 48.0, "cost": 9.18777, "converting": 3.0, "revenue": 90.46, "conv_rate": 0.068181818, "rev_per_conv": 30.15333333}, {"path": "DSP > DSP > DSP > DSP > SD", "users": 82.0, "clicks": 581.0, "impressions": 405.0, "cost": 2.78903, "converting": 3.0, "revenue": 88.63, "conv_rate": 0.036585366, "rev_per_conv": 29.54333333}, {"path": "SP > DSP > DSP > SP", "users": 42.0, "clicks": 84.0, "impressions": 84.0, "cost": 0.34518, "converting": 3.0, "revenue": 86.6, "conv_rate": 0.071428571, "rev_per_conv": 28.86666667}, {"path": "SD > SD > SD > SD > DSP", "users": 36.0, "clicks": 182.0, "impressions": 153.0, "cost": 2.31743, "converting": 2.0, "revenue": 86.3, "conv_rate": 0.055555556, "rev_per_conv": 43.15}, {"path": "DSP > DSP > DSP > SP > DSP", "users": 223.0, "clicks": 471.0, "impressions": 2321.0, "cost": 8.92843, "converting": 5.0, "revenue": 77.45, "conv_rate": 0.022421525, "rev_per_conv": 15.49}, {"path": "DSP > SD > SP > SP > SP", "users": 49.0, "clicks": 980.0, "impressions": 69.0, "cost": 13.37208, "converting": 3.0, "revenue": 72.47, "conv_rate": 0.06122449, "rev_per_conv": 24.15666667}, {"path": "DSP > DSP > DSP > SD > SP", "users": 69.0, "clicks": 801.0, "impressions": 255.0, "cost": 3.94542, "converting": 2.0, "revenue": 51.98, "conv_rate": 0.028985507, "rev_per_conv": 25.99}, {"path": "DSP > SD > SD > SD > SP", "users": 35.0, "clicks": 540.0, "impressions": 44.0, "cost": 8.11386, "converting": 3.0, "revenue": 49.96, "conv_rate": 0.085714286, "rev_per_conv": 16.65333333}, {"path": "SP > DSP > DSP > SD > SP", "users": 2.0, "clicks": 37.0, "impressions": 4.0, "cost": 1.71734, "converting": 2.0, "revenue": 41.64, "conv_rate": 1.0, "rev_per_conv": 20.82}, {"path": "DSP > DSP > SD > SD > SP", "users": 14.0, "clicks": 261.0, "impressions": 28.0, "cost": 1.74367, "converting": 2.0, "revenue": 34.98, "conv_rate": 0.142857143, "rev_per_conv": 17.49}, {"path": "DSP > SP > SP > SD > SP", "users": 21.0, "clicks": 285.0, "impressions": 23.0, "cost": 2.84401, "converting": 2.0, "revenue": 29.97, "conv_rate": 0.095238095, "rev_per_conv": 14.985}, {"path": "SP > SP > DSP > SP", "users": 72.0, "clicks": 216.0, "impressions": 72.0, "cost": 0.28479, "converting": 2.0, "revenue": 29.53, "conv_rate": 0.027777778, "rev_per_conv": 14.765}, {"path": "DSP > SP > SD > SD", "users": 4.0, "clicks": 12.0, "impressions": 4.0, "cost": 0.01383, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > DSP > DSP > DSP > DSP", "users": 68.0, "clicks": 106.0, "impressions": 508.0, "cost": 1.72079, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > DSP > DSP > SP > SP", "users": 4.0, "clicks": 31.0, "impressions": 8.0, "cost": 0.02396, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SP > DSP > DSP", "users": 75.0, "clicks": 154.0, "impressions": 556.0, "cost": 1.75348, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SP > SP > DSP", "users": 55.0, "clicks": 429.0, "impressions": 366.0, "cost": 4.16402, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SD > SD > DSP", "users": 7.0, "clicks": 21.0, "impressions": 7.0, "cost": 0.08002, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SD", "users": 32.0, "clicks": 32.0, "impressions": 64.0, "cost": 0.16894, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SD > SD > DSP > DSP", "users": 58.0, "clicks": 242.0, "impressions": 250.0, "cost": 1.08063, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SD > SD", "users": 34.0, "clicks": 102.0, "impressions": 34.0, "cost": 0.22091, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > DSP > SD", "users": 36.0, "clicks": 36.0, "impressions": 108.0, "cost": 0.27107, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > DSP > DSP > DSP", "users": 57.0, "clicks": 57.0, "impressions": 171.0, "cost": 0.49492, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD", "users": 84.0, "clicks": 84.0, "impressions": 84.0, "cost": 0.25378, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > DSP", "users": 41.0, "clicks": 41.0, "impressions": 82.0, "cost": 0.21253, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SD > DSP", "users": 41.0, "clicks": 82.0, "impressions": 41.0, "cost": 0.36134, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > DSP > DSP > SP > DSP", "users": 14.0, "clicks": 43.0, "impressions": 65.0, "cost": 0.24946, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > DSP > SD > SD > SP", "users": 5.0, "clicks": 75.0, "impressions": 9.0, "cost": 0.05229, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > DSP > SP > SP", "users": 61.0, "clicks": 183.0, "impressions": 61.0, "cost": 0.21653, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SP > DSP > DSP", "users": 71.0, "clicks": 197.0, "impressions": 454.0, "cost": 2.09022, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SP > SD > SD", "users": 26.0, "clicks": 290.0, "impressions": 40.0, "cost": 1.23118, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SD > DSP > DSP", "users": 2.0, "clicks": 9.0, "impressions": 12.0, "cost": 0.17446, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SD > SD > SD > DSP", "users": 12.0, "clicks": 69.0, "impressions": 32.0, "cost": 0.1511, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SD > SD > SD", "users": 42.0, "clicks": 274.0, "impressions": 127.0, "cost": 1.72267, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > DSP > DSP > SB", "users": 4.0, "clicks": 12.0, "impressions": 16.0, "cost": 0.08509, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SD > SP", "users": 8.0, "clicks": 24.0, "impressions": 8.0, "cost": 0.12757, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > DSP > DSP", "users": 28.0, "clicks": 28.0, "impressions": 56.0, "cost": 0.15802, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SD > SD > DSP", "users": 34.0, "clicks": 102.0, "impressions": 34.0, "cost": 0.26155, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SP > SD > SD > DSP", "users": 13.0, "clicks": 62.0, "impressions": 50.0, "cost": 0.26105, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SP > DSP > SP > DSP", "users": 15.0, "clicks": 82.0, "impressions": 56.0, "cost": 0.23938, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SD > SP > SP > DSP", "users": 11.0, "clicks": 114.0, "impressions": 40.0, "cost": 2.10748, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > DSP > DSP > DSP > SD", "users": 13.0, "clicks": 213.0, "impressions": 55.0, "cost": 4.41541, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SD > SD > SD", "users": 51.0, "clicks": 537.0, "impressions": 62.0, "cost": 3.817, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SD > SD > SP", "users": 10.0, "clicks": 168.0, "impressions": 17.0, "cost": 1.20218, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > DSP > SP", "users": 87.0, "clicks": 174.0, "impressions": 87.0, "cost": 0.34676, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SP > SB > SP", "users": 2.0, "clicks": 19.0, "impressions": 2.0, "cost": 0.007, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SD > SD > DSP > DSP", "users": 14.0, "clicks": 43.0, "impressions": 57.0, "cost": 0.24752, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SD", "users": 63.0, "clicks": 126.0, "impressions": 63.0, "cost": 0.73115, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SD > SP > DSP", "users": 8.0, "clicks": 24.0, "impressions": 8.0, "cost": 0.02949, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > DSP > DSP > DSP > SD", "users": 2.0, "clicks": 13.0, "impressions": 27.0, "cost": 0.12291, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > DSP > SB", "users": 2.0, "clicks": 2.0, "impressions": 6.0, "cost": 0.01101, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SP > SP > SD", "users": 5.0, "clicks": 83.0, "impressions": 8.0, "cost": 0.04855, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SP > SP > SB > DSP", "users": 2.0, "clicks": 8.0, "impressions": 5.0, "cost": 0.01343, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SP > SP > SD", "users": 13.0, "clicks": 209.0, "impressions": 27.0, "cost": 1.20784, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SP > SD > SP > DSP", "users": 16.0, "clicks": 64.0, "impressions": 48.0, "cost": 0.2082, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SD > SD > SP > DSP", "users": 12.0, "clicks": 76.0, "impressions": 47.0, "cost": 0.18866, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SP > SP > DSP > DSP", "users": 25.0, "clicks": 102.0, "impressions": 88.0, "cost": 0.34382, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SB > SP > DSP > DSP > DSP", "users": 3.0, "clicks": 15.0, "impressions": 12.0, "cost": 0.04728, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > DSP > SD > DSP", "users": 13.0, "clicks": 39.0, "impressions": 113.0, "cost": 0.26394, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SD > DSP > DSP", "users": 8.0, "clicks": 32.0, "impressions": 61.0, "cost": 0.1963, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SP > SD > SD > DSP", "users": 4.0, "clicks": 23.0, "impressions": 10.0, "cost": 0.04748, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SP > DSP > SP", "users": 8.0, "clicks": 29.0, "impressions": 32.0, "cost": 0.09954, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > DSP > SP > DSP > DSP", "users": 14.0, "clicks": 77.0, "impressions": 115.0, "cost": 3.38739, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SP", "users": 9.0, "clicks": 18.0, "impressions": 9.0, "cost": 0.02969, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > DSP > SD > SD > SD", "users": 6.0, "clicks": 68.0, "impressions": 6.0, "cost": 0.0644, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SD > SD > DSP", "users": 4.0, "clicks": 8.0, "impressions": 21.0, "cost": 0.09681, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SD > SP > SD", "users": 6.0, "clicks": 112.0, "impressions": 6.0, "cost": 0.4114, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SD", "users": 11.0, "clicks": 22.0, "impressions": 11.0, "cost": 0.03017, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SP > DSP", "users": 14.0, "clicks": 28.0, "impressions": 28.0, "cost": 0.08622, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SD > SP > DSP", "users": 6.0, "clicks": 18.0, "impressions": 6.0, "cost": 0.02788, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SD > DSP > SP", "users": 3.0, "clicks": 9.0, "impressions": 3.0, "cost": 0.00789, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SD > SP > DSP > DSP", "users": 16.0, "clicks": 118.0, "impressions": 72.0, "cost": 2.00668, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SP > DSP", "users": 13.0, "clicks": 13.0, "impressions": 39.0, "cost": 0.08379, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SB > SP > SP > DSP > DSP", "users": 2.0, "clicks": 7.0, "impressions": 12.0, "cost": 0.04867, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > DSP > SP > DSP", "users": 3.0, "clicks": 6.0, "impressions": 6.0, "cost": 0.02237, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SP > DSP > DSP", "users": 6.0, "clicks": 12.0, "impressions": 12.0, "cost": 0.03715, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SD > SD", "users": 17.0, "clicks": 34.0, "impressions": 34.0, "cost": 0.1647, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SP > SD > SP > DSP", "users": 5.0, "clicks": 54.0, "impressions": 22.0, "cost": 0.11908, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SP > SP", "users": 10.0, "clicks": 30.0, "impressions": 10.0, "cost": 0.02542, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SB > DSP > DSP > DSP", "users": 3.0, "clicks": 6.0, "impressions": 24.0, "cost": 0.19901, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SP > SB > SB > DSP", "users": 2.0, "clicks": 8.0, "impressions": 3.0, "cost": 0.0062, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SP > SD > SP", "users": 7.0, "clicks": 115.0, "impressions": 7.0, "cost": 0.04732, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SB", "users": 3.0, "clicks": 3.0, "impressions": 3.0, "cost": 0.00859, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SB > SB > SB > SB", "users": 5.0, "clicks": 65.0, "impressions": 5.0, "cost": 0.2853, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SP > SP > SD > DSP", "users": 5.0, "clicks": 39.0, "impressions": 21.0, "cost": 0.06795, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SP > SD > DSP", "users": 2.0, "clicks": 6.0, "impressions": 2.0, "cost": 0.00888, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > DSP > SB > SP", "users": 4.0, "clicks": 43.0, "impressions": 16.0, "cost": 1.7196, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SD > SP", "users": 3.0, "clicks": 6.0, "impressions": 6.0, "cost": 0.02012, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > DSP > SP", "users": 6.0, "clicks": 12.0, "impressions": 6.0, "cost": 0.02111, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SD > DSP > DSP", "users": 19.0, "clicks": 38.0, "impressions": 38.0, "cost": 0.26697, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SD > SD > DSP > SP", "users": 7.0, "clicks": 58.0, "impressions": 7.0, "cost": 0.05795, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SP > SP > DSP", "users": 8.0, "clicks": 24.0, "impressions": 8.0, "cost": 0.02826, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SD > DSP", "users": 2.0, "clicks": 4.0, "impressions": 4.0, "cost": 0.00854, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SD > DSP", "users": 8.0, "clicks": 16.0, "impressions": 8.0, "cost": 0.02121, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SB > SP > SP > SP > DSP", "users": 2.0, "clicks": 8.0, "impressions": 4.0, "cost": 0.00722, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SB", "users": 3.0, "clicks": 3.0, "impressions": 6.0, "cost": 0.01374, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > DSP > SP > SB", "users": 5.0, "clicks": 20.0, "impressions": 20.0, "cost": 0.04748, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SP > SD > SD", "users": 4.0, "clicks": 37.0, "impressions": 11.0, "cost": 0.05282, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SB > SP", "users": 2.0, "clicks": 4.0, "impressions": 4.0, "cost": 0.0078, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SP > SD > DSP", "users": 2.0, "clicks": 6.0, "impressions": 19.0, "cost": 0.08231, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SD > SP > SD", "users": 7.0, "clicks": 72.0, "impressions": 23.0, "cost": 0.1199, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SB > DSP > DSP > DSP", "users": 3.0, "clicks": 3.0, "impressions": 9.0, "cost": 0.03594, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SD > DSP > SP > SP", "users": 5.0, "clicks": 33.0, "impressions": 9.0, "cost": 0.04824, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SD > DSP > DSP > SP", "users": 4.0, "clicks": 48.0, "impressions": 12.0, "cost": 0.08293, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SP > SD", "users": 8.0, "clicks": 24.0, "impressions": 8.0, "cost": 0.05042, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SP > SD > DSP > DSP", "users": 4.0, "clicks": 12.0, "impressions": 17.0, "cost": 0.03791, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SP > SD > DSP", "users": 2.0, "clicks": 6.0, "impressions": 2.0, "cost": 0.01038, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > DSP > DSP > SP > SD", "users": 3.0, "clicks": 13.0, "impressions": 6.0, "cost": 0.02618, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SP > SD > DSP > SP", "users": 3.0, "clicks": 42.0, "impressions": 6.0, "cost": 0.47591, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > DSP > SB > SB", "users": 3.0, "clicks": 17.0, "impressions": 9.0, "cost": 0.07179, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SP > SB > SB", "users": 2.0, "clicks": 28.0, "impressions": 2.0, "cost": 0.0121, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > DSP > DSP > DSP", "users": 5.0, "clicks": 6.0, "impressions": 26.0, "cost": 0.06045, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > DSP > DSP > DSP > SB", "users": 2.0, "clicks": 43.0, "impressions": 6.0, "cost": 0.0518, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > SD > SP", "users": 2.0, "clicks": 6.0, "impressions": 2.0, "cost": 0.00815, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > DSP > SD > DSP > DSP", "users": 2.0, "clicks": 2.0, "impressions": 14.0, "cost": 0.0348, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > DSP > SP > SP", "users": 3.0, "clicks": 17.0, "impressions": 8.0, "cost": 0.02203, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > DSP", "users": 2.0, "clicks": 2.0, "impressions": 4.0, "cost": 0.01377, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SP > DSP > SD > SP", "users": 3.0, "clicks": 21.0, "impressions": 4.0, "cost": 0.0144, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > DSP > DSP > SP", "users": 3.0, "clicks": 20.0, "impressions": 12.0, "cost": 0.0383, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SP > DSP > DSP", "users": 2.0, "clicks": 4.0, "impressions": 14.0, "cost": 0.03122, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SP > SD > SD", "users": 4.0, "clicks": 29.0, "impressions": 4.0, "cost": 0.01286, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > DSP > SP > SP > SD", "users": 3.0, "clicks": 44.0, "impressions": 3.0, "cost": 1.5436, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SD > DSP > DSP", "users": 3.0, "clicks": 6.0, "impressions": 6.0, "cost": 0.01948, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SD > SP > DSP > SP", "users": 2.0, "clicks": 11.0, "impressions": 2.0, "cost": 0.05702, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SB > DSP > DSP > DSP > DSP", "users": 5.0, "clicks": 5.0, "impressions": 43.0, "cost": 0.10336, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SP > DSP > SP > DSP", "users": 2.0, "clicks": 5.0, "impressions": 59.0, "cost": 0.11391, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "DSP > SD > SD > SD > DSP", "users": 2.0, "clicks": 29.0, "impressions": 7.0, "cost": 0.03209, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SP > SP > DSP > SD", "users": 2.0, "clicks": 13.0, "impressions": 2.0, "cost": 0.00547, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SD > DSP > SP > SP", "users": 2.0, "clicks": 54.0, "impressions": 2.0, "cost": 0.04013, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > DSP > SP > SP > SP", "users": 5.0, "clicks": 60.0, "impressions": 8.0, "cost": 0.89538, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SP > DSP > SP > SP", "users": 2.0, "clicks": 22.0, "impressions": 2.0, "cost": 0.00606, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SP > SD > SP > SD > DSP", "users": 4.0, "clicks": 17.0, "impressions": 8.0, "cost": 0.03446, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}, {"path": "SD > SP > SP > DSP > SP", "users": 2.0, "clicks": 12.0, "impressions": 2.0, "cost": 0.00825, "converting": 0.0, "revenue": 0.0, "conv_rate": 0.0, "rev_per_conv": 0.0}], "dsp_paths_count": 170, "matched_pairs": [["SP", "SP Only", 1507699, 9108, 0.604, 231702.93, 25.44], ["DSP", "DSP Only", 389659, 119, 0.03, 2819.27, 23.69], ["SP > SP", "SP Only", 802830, 9313, 1.16, 235831.96, 25.32], ["DSP > SP", "DSP First Touch", 1851, 16, 0.864, 546.89, 34.18], ["SP > SP > SP", "SP Only", 413197, 8287, 2.006, 207655.06, 25.06], ["DSP > SP > SP", "DSP First Touch", 1095, 16, 1.461, 410.28, 25.64], ["SP > SP > SP > SP", "SP Only", 303492, 7870, 2.593, 201263.73, 25.57], ["DSP > SP > SP > SP", "DSP First Touch", 549, 12, 2.186, 277.89, 23.16], ["SP > SP > SP > SP > SP", "SP Only", 1295188, 98876, 7.634, 3015814.94, 30.5], ["DSP > SP > SP > SP > SP", "DSP First Touch", 2703, 217, 8.028, 6224.66, 28.69]], "cart_abandonment": {"overall": {"atc_unique_users": 364636, "atc_events": 451947, "purchase_unique_users": 192602, "purchase_events": 201322, "cart_abandonment_rate_pct": 47.18}, "section1_all": [{"parent_asin": "B0GYPYM6PL", "atc_unique_users": 57283, "purchase_unique_users": 34267, "cart_abandonment_rate_pct": 40.18, "product_name": "Americanflat 18x24 Poster Frame with Polished Plexiglass - Black Picture Frame - Wide Photo Frames Made of Engineered Wood for Vertical or Horizontal Wall Display - Epic Collection - Black"}, {"parent_asin": "B0GL2Q37SM", "atc_unique_users": 37262, "purchase_unique_users": 22616, "cart_abandonment_rate_pct": 39.31, "product_name": "Americanflat 4x6 Picture Frame with Shatter-Resistant Glass - Streamline Collection - Thin Border Photo Frame for Tabletop and Wall Display - Hanging Hardware and Easel Stand Included - Black"}, {"parent_asin": "B0CVK39TWK", "atc_unique_users": 35325, "purchase_unique_users": 24782, "cart_abandonment_rate_pct": 29.85, "product_name": "Americanflat 13x19 Picture Frame with Shatter-Resistant Glass - Signature Collection - Gallery-Style Frames Made of Engineered Wood - Photo Frame for Wall Display - Black"}, {"parent_asin": "B0CP2DB2W8", "atc_unique_users": 27170, "purchase_unique_users": 14750, "cart_abandonment_rate_pct": 45.71, "product_name": "Americanflat 16x20 Poster Frame - Black Engineered Wood with Polished Plexiglass - Matted to 11x14 Photo Size - Hudson Collection - Wide Picture Frame for Wall Display - Black"}, {"parent_asin": "B0HBNJ6N9L", "atc_unique_users": 22187, "purchase_unique_users": 9395, "cart_abandonment_rate_pct": 57.66, "product_name": "Americanflat Kids Artwork Frame Changeable (Light Wood) - Magnetic Door Holds 100 Art Pieces - 8.5x11 Letter Size Display with Mat or 10x12.5 Without Mat - My Mini Masterpiece"}, {"parent_asin": "B0GJDSX4ZY", "atc_unique_users": 20768, "purchase_unique_users": 13947, "cart_abandonment_rate_pct": 32.84, "product_name": "Americanflat 11x14 Picture Frame with Shatter-Resistant Glass - Use as 8x10 Frame with Mat or Display 11x14 Photo Without Mat - Signature Collection - Picture Frames for Wall Display - Black"}, {"parent_asin": "B0DK688YKY", "atc_unique_users": 10624, "purchase_unique_users": 2839, "cart_abandonment_rate_pct": 73.28, "product_name": "Americanflat 18x24 Poster Frame with Polished Plexiglass - Use as 8x10 Frame with Mat or Display 18x24 Photo Without Mat - Streamline Collection - Thin Border Picture Frames for Wall - Black"}, {"parent_asin": "UNMAPPED", "atc_unique_users": 9003, "purchase_unique_users": 1930, "cart_abandonment_rate_pct": 78.56, "product_name": ""}, {"parent_asin": "B0CZNJ9V5H", "atc_unique_users": 8553, "purchase_unique_users": 4062, "cart_abandonment_rate_pct": 52.51, "product_name": "Americanflat 5x7 Picture Frame with Shatter-Resistant Glass - Use as 4x6 Frame with Mat or Display 5x7 Photo Without Mat - Streamline Collection - Picture Frames for Tabletop and Wall - Black"}, {"parent_asin": "B0FT83Q2XL", "atc_unique_users": 8409, "purchase_unique_users": 4141, "cart_abandonment_rate_pct": 50.76, "product_name": "Americanflat 4x6 Collage Picture Frame with Shatter-Resistant Glass - Fits Three 4x6 Photos or Use as One 8x16 Picture Frame - Signature Collection - Collage Frames for Tabletop and Wall - Black"}, {"parent_asin": "B0FZN67XHM", "atc_unique_users": 7837, "purchase_unique_users": 3380, "cart_abandonment_rate_pct": 56.87, "product_name": "Americanflat 8x10 Picture Frame with Polished Crystal-Clear Glass - Use as 5x7 Frame with Mat or Display 8x10 Photo Without Mat - Signature Collection - Picture Frames for Tabletop and Wall - Gold"}, {"parent_asin": "B0HNJXS1HZ", "atc_unique_users": 7562, "purchase_unique_users": 3382, "cart_abandonment_rate_pct": 55.28, "product_name": ""}, {"parent_asin": "B0HPL5LL7K", "atc_unique_users": 7362, "purchase_unique_users": 3771, "cart_abandonment_rate_pct": 48.78, "product_name": ""}, {"parent_asin": "B0GPQ7J3Q9", "atc_unique_users": 6287, "purchase_unique_users": 2685, "cart_abandonment_rate_pct": 57.29, "product_name": "Americanflat 16x20 Picture Frame with Polished Plexiglass - Set of 2 - Use as 11x14 Frame with Mat or Display 16x20 Photo Without Mat - Galleria Collection - Picture Frames for Wall Display - White"}, {"parent_asin": "B0GZ4VY46Q", "atc_unique_users": 5070, "purchase_unique_users": 1770, "cart_abandonment_rate_pct": 65.09, "product_name": "Americanflat 8x10 Picture Frame with Polished Plexiglass - Set of 5 - Use as 5x7 Frame with Mat or Display 8x10 Photo Without Mat - Galleria Collection - Picture Frames for Tabletop and Wall - Black"}], "section2_dsp": [{"parent_asin": "B0GYPYM6PL", "atc_unique_users": 57283, "purchase_unique_users": 34267, "cart_abandonment_rate_pct": 40.18, "product_name": "Americanflat 18x24 Poster Frame with Polished Plexiglass - Black Picture Frame - Wide Photo Frames Made of Engineered Wood for Vertical or Horizontal Wall Display - Epic Collection - Black"}, {"parent_asin": "B0GL2Q37SM", "atc_unique_users": 37262, "purchase_unique_users": 22616, "cart_abandonment_rate_pct": 39.31, "product_name": "Americanflat 4x6 Picture Frame with Shatter-Resistant Glass - Streamline Collection - Thin Border Photo Frame for Tabletop and Wall Display - Hanging Hardware and Easel Stand Included - Black"}, {"parent_asin": "B0CVK39TWK", "atc_unique_users": 35325, "purchase_unique_users": 24782, "cart_abandonment_rate_pct": 29.85, "product_name": "Americanflat 13x19 Picture Frame with Shatter-Resistant Glass - Signature Collection - Gallery-Style Frames Made of Engineered Wood - Photo Frame for Wall Display - Black"}, {"parent_asin": "B0CP2DB2W8", "atc_unique_users": 27170, "purchase_unique_users": 14750, "cart_abandonment_rate_pct": 45.71, "product_name": "Americanflat 16x20 Poster Frame - Black Engineered Wood with Polished Plexiglass - Matted to 11x14 Photo Size - Hudson Collection - Wide Picture Frame for Wall Display - Black"}, {"parent_asin": "B0HBNJ6N9L", "atc_unique_users": 22187, "purchase_unique_users": 9395, "cart_abandonment_rate_pct": 57.66, "product_name": "Americanflat Kids Artwork Frame Changeable (Light Wood) - Magnetic Door Holds 100 Art Pieces - 8.5x11 Letter Size Display with Mat or 10x12.5 Without Mat - My Mini Masterpiece"}, {"parent_asin": "B0GJDSX4ZY", "atc_unique_users": 20768, "purchase_unique_users": 13947, "cart_abandonment_rate_pct": 32.84, "product_name": "Americanflat 11x14 Picture Frame with Shatter-Resistant Glass - Use as 8x10 Frame with Mat or Display 11x14 Photo Without Mat - Signature Collection - Picture Frames for Wall Display - Black"}, {"parent_asin": "B0DK688YKY", "atc_unique_users": 10624, "purchase_unique_users": 2839, "cart_abandonment_rate_pct": 73.28, "product_name": "Americanflat 18x24 Poster Frame with Polished Plexiglass - Use as 8x10 Frame with Mat or Display 18x24 Photo Without Mat - Streamline Collection - Thin Border Picture Frames for Wall - Black"}, {"parent_asin": "B0CZNJ9V5H", "atc_unique_users": 8553, "purchase_unique_users": 4062, "cart_abandonment_rate_pct": 52.51, "product_name": "Americanflat 5x7 Picture Frame with Shatter-Resistant Glass - Use as 4x6 Frame with Mat or Display 5x7 Photo Without Mat - Streamline Collection - Picture Frames for Tabletop and Wall - Black"}, {"parent_asin": "B0FT83Q2XL", "atc_unique_users": 8409, "purchase_unique_users": 4141, "cart_abandonment_rate_pct": 50.76, "product_name": "Americanflat 4x6 Collage Picture Frame with Shatter-Resistant Glass - Fits Three 4x6 Photos or Use as One 8x16 Picture Frame - Signature Collection - Collage Frames for Tabletop and Wall - Black"}, {"parent_asin": "B0FZN67XHM", "atc_unique_users": 7837, "purchase_unique_users": 3380, "cart_abandonment_rate_pct": 56.87, "product_name": "Americanflat 8x10 Picture Frame with Polished Crystal-Clear Glass - Use as 5x7 Frame with Mat or Display 8x10 Photo Without Mat - Signature Collection - Picture Frames for Tabletop and Wall - Gold"}, {"parent_asin": "B0HNJXS1HZ", "atc_unique_users": 7562, "purchase_unique_users": 3382, "cart_abandonment_rate_pct": 55.28, "product_name": ""}, {"parent_asin": "B0HPL5LL7K", "atc_unique_users": 7362, "purchase_unique_users": 3771, "cart_abandonment_rate_pct": 48.78, "product_name": ""}, {"parent_asin": "B0GPQ7J3Q9", "atc_unique_users": 6287, "purchase_unique_users": 2685, "cart_abandonment_rate_pct": 57.29, "product_name": "Americanflat 16x20 Picture Frame with Polished Plexiglass - Set of 2 - Use as 11x14 Frame with Mat or Display 16x20 Photo Without Mat - Galleria Collection - Picture Frames for Wall Display - White"}, {"parent_asin": "B0GZ4VY46Q", "atc_unique_users": 5070, "purchase_unique_users": 1770, "cart_abandonment_rate_pct": 65.09, "product_name": "Americanflat 8x10 Picture Frame with Polished Plexiglass - Set of 5 - Use as 5x7 Frame with Mat or Display 8x10 Photo Without Mat - Galleria Collection - Picture Frames for Tabletop and Wall - Black"}, {"parent_asin": "B0HFXL6ZQ6", "atc_unique_users": 4713, "purchase_unique_users": 1816, "cart_abandonment_rate_pct": 61.47, "product_name": "Americanflat 50x60 Throw Blanket - Soft and Breathable Cotton Throw Blanket for Couch, Bed, Chair - Decorative Blankets Perfect for Home, Office, or Outdoor Use - Cream Herringbone Design"}], "avg_abandon_all": 52.26466666666666, "avg_abandon_dsp": 51.12533333333333, "total_parents": 143, "total_children": 2230, "dsp_parent_count": 95}, "audience_segments": {"total_segments": 140, "top15_spend": [{"segment": "IM - Health, Beauty or Fashion", "cost": 10542.54, "impressions": 4089208.0, "clicks": 1504.0, "dpv": 492.0, "atc": 222.0, "purchases": 72.0, "ntb": 68.0, "ctr": 0.03677973827694752, "pct_ntb": 94.44444444444444, "cpa": 146.42416666666668}, {"segment": "LS - House Keeper", "cost": 10070.52, "impressions": 3891179.0, "clicks": 1254.0, "dpv": 424.0, "atc": 197.0, "purchases": 66.0, "ntb": 62.0, "ctr": 0.0322267364210179, "pct_ntb": 93.93939393939394, "cpa": 152.58363636363637}, {"segment": "IM - Health & Household", "cost": 9754.66, "impressions": 3771977.0, "clicks": 1215.0, "dpv": 462.0, "atc": 210.0, "purchases": 66.0, "ntb": 62.0, "ctr": 0.032211225041934244, "pct_ntb": 93.93939393939394, "cpa": 147.79787878787877}, {"segment": "IM - Home & Kitchen", "cost": 9548.9, "impressions": 3662258.0, "clicks": 997.0, "dpv": 463.0, "atc": 220.0, "purchases": 72.0, "ntb": 68.0, "ctr": 0.027223641807868258, "pct_ntb": 94.44444444444444, "cpa": 132.6236111111111}, {"segment": "LS - Favorite Streaming Genre - Drama", "cost": 8524.41, "impressions": 3282777.0, "clicks": 916.0, "dpv": 362.0, "atc": 180.0, "purchases": 56.0, "ntb": 54.0, "ctr": 0.02790320512176124, "pct_ntb": 96.42857142857143, "cpa": 152.22160714285715}, {"segment": "LS - Favorite Streaming Genre - Action", "cost": 8370.31, "impressions": 3224562.0, "clicks": 900.0, "dpv": 344.0, "atc": 170.0, "purchases": 52.0, "ntb": 50.0, "ctr": 0.027910767415853688, "pct_ntb": 96.15384615384616, "cpa": 160.9675}, {"segment": "LS - Favorite Streaming Genre - Comedy", "cost": 8353.02, "impressions": 3220027.0, "clicks": 872.0, "dpv": 356.0, "atc": 170.0, "purchases": 58.0, "ntb": 56.0, "ctr": 0.02708051826894619, "pct_ntb": 96.55172413793103, "cpa": 144.01758620689657}, {"segment": "LS - Favorite Streaming Genre - Suspense", "cost": 8146.05, "impressions": 3137015.0, "clicks": 870.0, "dpv": 340.0, "atc": 166.0, "purchases": 54.0, "ntb": 52.0, "ctr": 0.02773337073619348, "pct_ntb": 96.29629629629629, "cpa": 150.8527777777778}, {"segment": "LS - Favorite Streaming Genre - Romance", "cost": 7230.99, "impressions": 2706852.0, "clicks": 802.0, "dpv": 314.0, "atc": 145.0, "purchases": 50.0, "ntb": 48.0, "ctr": 0.029628513121515324, "pct_ntb": 96.0, "cpa": 144.6198}, {"segment": "LS - Favorite Streaming Genre - Adventure", "cost": 6868.74, "impressions": 2837572.0, "clicks": 576.0, "dpv": 301.0, "atc": 132.0, "purchases": 48.0, "ntb": 46.0, "ctr": 0.02029904439429202, "pct_ntb": 95.83333333333334, "cpa": 143.09875}, {"segment": "LS - Favorite Streaming Genre - Science Fiction", "cost": 6289.33, "impressions": 2534166.0, "clicks": 567.0, "dpv": 282.0, "atc": 120.0, "purchases": 44.0, "ntb": 42.0, "ctr": 0.022374224892923355, "pct_ntb": 95.45454545454545, "cpa": 142.93931818181818}, {"segment": "Demo - Amazon Reach Segment", "cost": 5853.86, "impressions": 2260238.0, "clicks": 851.0, "dpv": 251.0, "atc": 111.0, "purchases": 36.0, "ntb": 34.0, "ctr": 0.037650902250117024, "pct_ntb": 94.44444444444444, "cpa": 162.60722222222222}, {"segment": "LS - Seller Central Lookalikes", "cost": 5853.67, "impressions": 2260105.0, "clicks": 851.0, "dpv": 251.0, "atc": 111.0, "purchases": 36.0, "ntb": 34.0, "ctr": 0.03765311788611591, "pct_ntb": 94.44444444444444, "cpa": 162.60194444444446}, {"segment": "LS - Mother's Day", "cost": 5620.64, "impressions": 2173393.0, "clicks": 812.0, "dpv": 251.0, "atc": 111.0, "purchases": 36.0, "ntb": 34.0, "ctr": 0.03736093748346479, "pct_ntb": 94.44444444444444, "cpa": 156.1288888888889}, {"segment": "LS - Father's Day Gifts", "cost": 5616.09, "impressions": 2171560.0, "clicks": 808.0, "dpv": 249.0, "atc": 111.0, "purchases": 36.0, "ntb": 34.0, "ctr": 0.03720827423603308, "pct_ntb": 94.44444444444444, "cpa": 156.0025}], "top10_ntb": [{"segment": "LS - Crime Movie Fans", "cost": 1468.55, "impressions": 470339.0, "clicks": 153.0, "dpv": 80.0, "atc": 20.0, "purchases": 13.0, "ntb": 13.0, "ctr": 0.03252972855748726, "pct_ntb": 100.0, "cpa": 112.96538461538461}, {"segment": "LS - Interested in Home - Household Supplies", "cost": 4387.400000000001, "impressions": 1701533.0, "clicks": 427.0, "dpv": 192.0, "atc": 92.0, "purchases": 32.0, "ntb": 31.0, "ctr": 0.025095017257966784, "pct_ntb": 96.875, "cpa": 137.10625000000002}, {"segment": "LS - Denzel Washington Fans", "cost": 4380.57, "impressions": 1688811.0, "clicks": 450.0, "dpv": 185.0, "atc": 91.0, "purchases": 30.0, "ntb": 29.0, "ctr": 0.026645965711971323, "pct_ntb": 96.66666666666667, "cpa": 146.01899999999998}, {"segment": "LS - Video Streamers", "cost": 4399.91, "impressions": 1694083.0, "clicks": 470.0, "dpv": 188.0, "atc": 92.0, "purchases": 30.0, "ntb": 29.0, "ctr": 0.027743622951177715, "pct_ntb": 96.66666666666667, "cpa": 146.66366666666667}, {"segment": "LS - Bargain Hunters and Deal Seekers", "cost": 4656.15, "impressions": 1802678.0, "clicks": 465.0, "dpv": 203.0, "atc": 98.0, "purchases": 29.0, "ntb": 28.0, "ctr": 0.02579495617076372, "pct_ntb": 96.55172413793103, "cpa": 160.55689655172412}, {"segment": "LS - Exercise & Fitness Amazon Video Channel Streamers", "cost": 4227.96, "impressions": 1631111.0, "clicks": 440.0, "dpv": 171.0, "atc": 87.0, "purchases": 29.0, "ntb": 28.0, "ctr": 0.026975478676803725, "pct_ntb": 96.55172413793103, "cpa": 145.79172413793103}, {"segment": "LS - Favorite Streaming Genre - Comedy", "cost": 8353.02, "impressions": 3220027.0, "clicks": 872.0, "dpv": 356.0, "atc": 170.0, "purchases": 58.0, "ntb": 56.0, "ctr": 0.02708051826894619, "pct_ntb": 96.55172413793103, "cpa": 144.01758620689657}, {"segment": "LS - Favorite Streaming Genre - Drama", "cost": 8524.41, "impressions": 3282777.0, "clicks": 916.0, "dpv": 362.0, "atc": 180.0, "purchases": 56.0, "ntb": 54.0, "ctr": 0.02790320512176124, "pct_ntb": 96.42857142857143, "cpa": 152.22160714285715}, {"segment": "LS - Favorite Streaming Genre - Reality TV", "cost": 4275.2, "impressions": 1646390.0, "clicks": 460.0, "dpv": 181.0, "atc": 90.0, "purchases": 28.0, "ntb": 27.0, "ctr": 0.02793991703059421, "pct_ntb": 96.42857142857143, "cpa": 152.68571428571428}, {"segment": "LS - Favorite Streaming Genre - Suspense", "cost": 8146.05, "impressions": 3137015.0, "clicks": 870.0, "dpv": 340.0, "atc": 166.0, "purchases": 54.0, "ntb": 52.0, "ctr": 0.02773337073619348, "pct_ntb": 96.29629629629629, "cpa": 150.8527777777778}], "most_efficient_cpa": {"segment": "VIEWABILITY_TIER2", "cost": 336.58, "impressions": 121168.0, "clicks": 179.0, "dpv": 66.0, "atc": 30.0, "purchases": 22.0, "ntb": 18.0, "ctr": 0.14772877327347153, "pct_ntb": 81.81818181818183, "cpa": 15.299090909090909}, "top_spend_segment": {"segment": "IM - Health, Beauty or Fashion", "cost": 10542.54, "impressions": 4089208.0, "clicks": 1504.0, "dpv": 492.0, "atc": 222.0, "purchases": 72.0, "ntb": 68.0, "ctr": 0.03677973827694752, "pct_ntb": 94.44444444444444, "cpa": 146.42416666666668}}, "kpi_may": {"cost": 9357.73, "impressions": 2599359.0, "viewable": 1701778.0, "dpv": 7860.0, "atc": 2085.0, "purchases": 1784.0, "purch_views": 1761.0, "purch_clicks": 23.0, "ntb": 1456.0, "sales": 51960.76, "roas": 5.5527098986613215, "ecpm": 5.498795965161142, "dpvr": 0.3023822411602245, "viewability": 65.46914066121687, "pct_ntb": 81.61434977578476, "existing": 328.0}}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('dashboard-data').textContent);
+</script>
+<script>// ============================================================
+// COLOR CONSTANTS (matching reference file)
+// ============================================================
+const A='#3b7ff5', G='#22c55e', AM='#f59e0b', R='#ef4444', C='#22d3ee', P='#a78bfa', MU='#7a8aaa';
+if (typeof Chart !== 'undefined') {
+  Chart.defaults.color = MU;
+  Chart.defaults.borderColor = '#252f45';
+  Chart.defaults.font.family = "'Inter','Segoe UI',system-ui,sans-serif";
+  Chart.defaults.font.size = 11;
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+const $ = id => document.getElementById(id);
+const fmt = (n,d=0) => (n===null||n===undefined) ? '—' : Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtC = (n,d=2) => '$'+fmt(n,d);
+const fmtC0 = n => '$'+fmt(n,0);
+const fmtCK = n => n>=1000000 ? '$'+(n/1000000).toFixed(1)+'M' : n>=1000 ? '$'+(n/1000).toFixed(0)+'K' : '$'+fmt(n,0);
+const fmtNK = n => n>=1000000 ? (n/1000000).toFixed(3)+'M' : n>=1000 ? (n/1000).toFixed(0)+'K' : fmt(n,0);
+const fmtPct = (n,d=1) => (n===null||n===undefined) ? '—' : Number(n).toFixed(d)+'%';
+const fmtX = (n,d=2) => (n===null||n===undefined) ? '—' : Number(n).toFixed(d)+'×';
+const shortDate = s => { const d=new Date(s+'T00:00:00'); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); };
+const shortOrder = o => o.split(' - ')[0];
+const esc = s => (s||'').replace(/</g,'&lt;');
+
+// ============================================================
+// TABS
+// ============================================================
+const TABS = [
+  {id:'overview', label:'📊 DSP Overview'},
+  {id:'asin', label:'🏷️ ASIN Performance'},
+  {id:'attribution', label:'📈 DSP Lift & Sequencing'},
+  {id:'funnel', label:'🎯 Audience & Exposure'},
+  {id:'paths', label:'🛣️ Path to Conversion'},
+  {id:'cart', label:'🛒 Cart Abandonment'},
+];
+
+const tabbar = $('tabbar');
+TABS.forEach((t,i)=>{
+  const btn = document.createElement('button');
+  btn.className = 'tab-btn' + (i===0?' active':'');
+  btn.textContent = t.label;
+  btn.onclick = ()=> switchTab(t.id, btn);
+  tabbar.appendChild(btn);
+});
+function switchTab(tab, btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  $('tab-'+tab).classList.add('active');
+  window.scrollTo({top:0});
+}
+
+const app = $('app');
+app.innerHTML = TABS.map(t=>`<div id="tab-${t.id}" class="tab-content${t.id==='overview'?' active':''}"><div class="page" id="page-${t.id}"></div></div>`).join('');
+
+// ============================================================
+// TAB 1: DSP OVERVIEW
+// ============================================================
+(function(){
+  try{
+  const k = DATA.kpi;
+  const km = DATA.kpi_may;
+  const page = $('page-overview');
+
+  function deltaHtml(curr, prev, opts={}){
+    if(prev===undefined||prev===null||prev===0){ return ''; }
+    const pct = ((curr-prev)/Math.abs(prev))*100;
+    const up = pct >= 0;
+    const color = opts.invert ? (up?'var(--red)':'var(--green)') : (up?'var(--green)':'var(--red)');
+    const arrow = up ? '▲' : '▼';
+    return ` <span style="color:${color};font-weight:700">${arrow} ${Math.abs(pct).toFixed(0)}%</span> <span style="color:var(--muted)">vs September</span>`;
+  }
+
+  page.innerHTML = `
+  <div class="hero-header">
+    <div class="accent-line"></div>
+    <div>
+      <h1>American Flat US</h1>
+      <div class="sub">October 2026 · Amazon DSP End-of-Month Performance Report</div>
+      <div class="dsp-pill">🧩 Full Month Active · ${DATA.order_table.length} Active Campaign Orders</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Key Performance Indicators</div>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-label">Ad Spend</div><div class="kpi-value accent">${fmtC0(k.cost)}</div><div class="kpi-sub">October 1–31 · 31 days${deltaHtml(k.cost, km.cost)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Ad Revenue</div><div class="kpi-value green">${fmtC0(k.sales)}</div><div class="kpi-sub">Total product sales${deltaHtml(k.sales, km.sales)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total ROAS</div><div class="kpi-value accent">${fmtX(k.roas)}</div><div class="kpi-sub">Revenue per $1 spent${deltaHtml(k.roas, km.roas)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Impressions</div><div class="kpi-value">${fmtNK(k.impressions)}</div><div class="kpi-sub">Total served${deltaHtml(k.impressions, km.impressions)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Viewable Imp.</div><div class="kpi-value">${fmtNK(k.viewable)}</div><div class="kpi-sub">${fmtPct(k.viewability)} viewability${deltaHtml(k.viewable, km.viewable)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">eCPM</div><div class="kpi-value">${fmtC(k.ecpm)}</div><div class="kpi-sub">Per 1K viewable imp.${deltaHtml(k.ecpm, km.ecpm, {invert:true})}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total DPVR%</div><div class="kpi-value amber">${fmtPct(k.dpvr,2)}</div><div class="kpi-sub">Detail page view rate${deltaHtml(k.dpvr, km.dpvr)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total Purchases</div><div class="kpi-value green">${fmt(k.purchases)}</div><div class="kpi-sub">Attributed conversions${deltaHtml(k.purchases, km.purchases)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Purchase Views</div><div class="kpi-value">${fmt(k.purch_views)}</div><div class="kpi-sub">View-through${deltaHtml(k.purch_views, km.purch_views)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Purchase Clicks</div><div class="kpi-value">${fmt(k.purch_clicks)}</div><div class="kpi-sub">Click-through${deltaHtml(k.purch_clicks, km.purch_clicks)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">NTB Purchases</div><div class="kpi-value green">${fmt(k.ntb)}</div><div class="kpi-sub">New-to-brand customers${deltaHtml(k.ntb, km.ntb)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">% NTB</div><div class="kpi-value green">${fmtPct(k.pct_ntb)}</div><div class="kpi-sub">Of total purchases${deltaHtml(k.pct_ntb, km.pct_ntb)}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total ATC</div><div class="kpi-value">${fmt(k.atc)}</div><div class="kpi-sub">Add-to-cart events${deltaHtml(k.atc, km.atc)}</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Daily Performance Trends</div>
+    <div class="chart-grid">
+      <div class="chart-card full"><div class="chart-title">Daily Ad Spend · Ad Revenue · ROAS</div><div class="chart-container tall"><canvas id="c1"></canvas></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Purchase Activity</div>
+    <div class="chart-grid">
+      <div class="chart-card"><div class="chart-title">Daily Purchases &amp; NTB</div><div class="chart-container tall"><canvas id="c2"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">NTB vs. Existing Customer Split</div><div class="chart-container tall"><canvas id="c3"></canvas></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Performance by Campaign Order (Ranked by Cost)</div>
+    <div class="callout" style="border-left:3px solid var(--muted);margin-bottom:14px"><strong style="color:var(--text)">ℹ️ Note:</strong> Orders with under $1 in spend in October are excluded from this table (residual cross-sell attribution from conversion campaigns that had no active October budget). Their attributed sales remain in the KPI totals above.</div>
+    <div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>Order</th><th class="num">Cost</th><th class="num">Sales</th><th class="num">ROAS</th><th class="num">Purchases</th><th class="num">Purch. Views</th><th class="num">Purch. Clicks</th><th class="num">NTB</th><th class="num">% NTB</th><th class="num">ATC</th></tr></thead>
+      <tbody id="orderTbody"></tbody>
+    </table></div>
+  </div>
+  `;
+
+  DATA.order_table
+    .filter(o => o.cost > 0)
+    .sort((a,b) => b.cost - a.cost)
+    .forEach(o=>{
+    $('orderTbody').insertAdjacentHTML('beforeend', `<tr><td class="prod-cell" style="max-width:340px;font-size:12px" title="${esc(o.order)}">${esc(o.order)}</td><td class="num">${fmtC0(o.cost)}</td><td class="num good">${fmtC0(o.sales)}</td><td class="num accent-c">${fmtX(o.roas)}</td><td class="num">${fmt(o.purchases)}</td><td class="num">${fmt(o.purch_views)}</td><td class="num">${fmt(o.purch_clicks)}</td><td class="num good">${fmt(o.ntb)}</td><td class="num good">${fmtPct(o.pct_ntb)}</td><td class="num">${fmt(o.atc)}</td></tr>`);
+  });
+
+  const dates = DATA.daily.map(d=>shortDate(d.date));
+  new Chart($('c1'), {type:'bar', data:{labels:dates, datasets:[
+    {label:'Ad Spend ($)', data:DATA.daily.map(d=>d.cost), backgroundColor:'#3b7ff533', borderColor:A, borderWidth:1, yAxisID:'y'},
+    {label:'Ad Revenue ($)', data:DATA.daily.map(d=>d.sales), backgroundColor:'#22c55e33', borderColor:G, borderWidth:1, yAxisID:'y'},
+    {label:'ROAS (×)', data:DATA.daily.map(d=>d.roas), type:'line', borderColor:AM, backgroundColor:'transparent', borderWidth:2, pointRadius:2, pointBackgroundColor:AM, yAxisID:'y2'},
+  ]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top', labels:{boxWidth:10,padding:14}}}, scales:{y:{grid:{color:'#252f4566'}, ticks:{callback:v=>'$'+v}}, y2:{position:'right', grid:{display:false}, ticks:{callback:v=>v+'×'}}}}});
+
+  new Chart($('c2'), {type:'bar', data:{labels:dates, datasets:[
+    {label:'Total Purchases', data:DATA.daily.map(d=>d.purchases), backgroundColor:'#3b7ff544', borderColor:A, borderWidth:1},
+    {label:'NTB Purchases', data:DATA.daily.map(d=>d.ntb), backgroundColor:'#22c55e44', borderColor:G, borderWidth:1},
+  ]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top', labels:{boxWidth:10,padding:12}}}, scales:{y:{grid:{color:'#252f4566'}}}}});
+
+  const ntbExistingTotal = k.ntb + k.existing;
+  const pctNtbShare = ntbExistingTotal ? (k.ntb/ntbExistingTotal*100) : 0;
+  const pctExistingShare = ntbExistingTotal ? (k.existing/ntbExistingTotal*100) : 0;
+  new Chart($('c3'), {type:'doughnut', data:{labels:[`NTB (${fmt(k.ntb)} · ${pctNtbShare.toFixed(1)}%)`,`Existing (${fmt(k.existing)} · ${pctExistingShare.toFixed(1)}%)`], datasets:[{data:[k.ntb,k.existing], backgroundColor:['#22c55eaa','#3b7ff555'], borderColor:[G,A], borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{legend:{position:'bottom', labels:{padding:14,boxWidth:12}}, tooltip:{callbacks:{label:ctx=>{const pct = ctx.dataIndex===0?pctNtbShare:pctExistingShare; return `${ctx.label.split(' (')[0]}: ${fmt(ctx.raw)} (${pct.toFixed(1)}%)`;}}}}}});
+  } catch(e){ console.error("Section render error:", e); }
+})();
+
+// ============================================================
+// TAB 2: ASIN PERFORMANCE
+// ============================================================
+(function(){
+  try{
+  const tt = DATA.tot_type;
+  const totalSales = tt['Promoted'].sales + tt['Brand halo'].sales;
+  const totalPurch = tt['Promoted'].purchases + tt['Brand halo'].purchases;
+  const overallNtb = (tt['Promoted'].ntb + tt['Brand halo'].ntb) / totalPurch * 100;
+  const topPromoted = DATA.promoted_top[0];
+  const topHalo = DATA.halo_top[0];
+  const page = $('page-asin');
+  const haloVsPromoted = tt['Brand halo'].sales / tt['Promoted'].sales;
+  const haloWins = haloVsPromoted > 1;
+
+  function asinRows(list, colorHex){
+    return list.map(a=>`<tr><td style="font-family:monospace;font-size:11px;color:${colorHex}">${a.asin}</td><td class="prod-cell">${esc(a.product)}</td><td class="num good">${fmtC0(a.sales)}</td><td class="num">${fmt(a.purchases)}</td><td class="num">${fmt(a.purch_views)}</td><td class="num">${fmt(a.purch_clicks)}</td><td class="num">${fmt(a.atc)}</td><td class="num good">${fmt(a.ntb)}</td><td class="num good">${fmtPct(a.pct_ntb)}</td></tr>`).join('');
+  }
+
+  page.innerHTML = `
+  <div class="insight-grid">
+    <div class="insight-card"><div class="il">Top Promoted ASIN</div><div class="iv">${topPromoted.asin}</div><div class="id">${esc((topPromoted.product||'Unallocated sales (no product name)').split(' - ')[0])} — ${fmtC0(topPromoted.sales)} sales · ${fmt(topPromoted.purchases)} purchases · ${fmtPct(topPromoted.pct_ntb)} NTB</div></div>
+    <div class="insight-card g"><div class="il">Top Halo ASIN</div><div class="iv">${topHalo.asin}</div><div class="id">${esc((topHalo.product||'Unallocated sales (no product name)').split(' - ')[0])} — ${fmtC0(topHalo.sales)} halo sales · ${fmtPct(topHalo.pct_ntb)} NTB</div></div>
+    <div class="insight-card a"><div class="il">Overall NTB Rate</div><div class="iv">${fmtPct(overallNtb)}</div><div class="id">New customer acquisition across all DSP-attributed ASIN purchases</div></div>
+  </div>
+  <div class="callout" style="border-left:3px solid ${haloWins?'var(--purple)':'var(--amber)'}">
+    <strong style="color:var(--text)">${haloWins?'🔮':'🏷️'} ${haloWins?'Brand Halo Insight':'Promoted Insight'}:</strong>
+    ${haloWins
+      ? `Brand Halo sales (${fmtC0(tt['Brand halo'].sales)}) outpace Promoted sales (${fmtC0(tt['Promoted'].sales)}) by ${haloVsPromoted.toFixed(2)}×. With DSP impressions landing on a focused set of advertised products, customers are clearly browsing and purchasing across American Flat's wider catalog.`
+      : `Promoted sales (${fmtC0(tt['Promoted'].sales)}) outpace Brand Halo sales (${fmtC0(tt['Brand halo'].sales)}) by ${(1/haloVsPromoted).toFixed(2)}× this month. DSP impressions are converting most efficiently on the directly advertised ASINs, with a smaller — but still meaningful — halo effect spilling into the rest of the catalog (${fmtC0(tt['Brand halo'].sales)}, ${fmt(tt['Brand halo'].purchases)} purchases).`}
+  </div>
+  <div class="section">
+    <div class="section-title">Revenue Trend by Conversion Type</div>
+    <div class="chart-grid">
+      <div class="chart-card full"><div class="chart-title">Daily Revenue — Promoted vs. Brand Halo</div><div class="chart-container tall"><canvas id="c4"></canvas></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Conversion Type Breakdown</div>
+    <div class="chart-grid">
+      <div class="chart-card"><div class="chart-title">Sales Split: Promoted vs. Brand Halo</div><div class="chart-container short"><canvas id="c5"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">Purchases Split: Promoted vs. Brand Halo</div><div class="chart-container short"><canvas id="c6"></canvas></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Top 10 Promoted ASINs — Performance Metrics</div>
+    <div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>ASIN</th><th>Product</th><th class="num">Sales</th><th class="num">Purchases</th><th class="num">Purch. Views</th><th class="num">Purch. Clicks</th><th class="num">ATC</th><th class="num">NTB</th><th class="num">% NTB</th></tr></thead>
+      <tbody>${asinRows(DATA.promoted_top, C)}</tbody>
+    </table></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Top 10 Brand Halo ASINs — Performance Metrics</div>
+    <div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>ASIN</th><th>Product</th><th class="num">Sales</th><th class="num">Purchases</th><th class="num">Purch. Views</th><th class="num">Purch. Clicks</th><th class="num">ATC</th><th class="num">NTB</th><th class="num">% NTB</th></tr></thead>
+      <tbody>${asinRows(DATA.halo_top, P)}</tbody>
+    </table></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Top 15 ASINs Combined by Total Sales</div>
+    <div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>Rank</th><th>ASIN</th><th>Type</th><th>Product</th><th class="num">Sales</th><th class="num">Purchases</th><th class="num">NTB</th><th class="num">% NTB</th></tr></thead>
+      <tbody id="top10Tbody"></tbody>
+    </table></div>
+  </div>
+  `;
+
+  DATA.top15_overall.forEach((a,i)=>{
+    const isP = a.type==='Promoted';
+    $('top10Tbody').insertAdjacentHTML('beforeend', `<tr><td style="font-weight:700;color:${MU}">#${i+1}</td><td style="font-family:monospace;font-size:11px;color:${isP?C:P}">${a.asin}</td><td><span class="tag ${isP?'tag-promoted':'tag-halo'}">${a.type}</span></td><td class="prod-cell" style="font-size:11px">${esc(a.product)}</td><td class="num good">${fmtC0(a.sales)}</td><td class="num">${fmt(a.purchases)}</td><td class="num good">${fmt(a.ntb)}</td><td class="num good">${fmtPct(a.pct_ntb)}</td></tr>`);
+  });
+
+  const dates = DATA.asin_daily.dates.map(shortDate);
+  new Chart($('c4'), {type:'line', data:{labels:dates, datasets:[
+    {label:'Promoted', data:DATA.asin_daily.promoted_sales, borderColor:AM, backgroundColor:'#f59e0b22', fill:true, borderWidth:2, tension:.3, pointRadius:1.5},
+    {label:'Brand Halo', data:DATA.asin_daily.halo_sales, borderColor:P, backgroundColor:'#a78bfa22', fill:true, borderWidth:2, tension:.3, pointRadius:1.5},
+  ]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top', labels:{boxWidth:10,padding:14}}}, scales:{y:{grid:{color:'#252f4566'}, ticks:{callback:v=>'$'+v}}}}});
+
+  const promSalesShare = tt['Promoted'].sales / (tt['Promoted'].sales + tt['Brand halo'].sales) * 100;
+  const haloSalesShare = 100 - promSalesShare;
+  const promPurchShare = tt['Promoted'].purchases / (tt['Promoted'].purchases + tt['Brand halo'].purchases) * 100;
+  const haloPurchShare = 100 - promPurchShare;
+  new Chart($('c5'), {type:'doughnut', data:{labels:[`Promoted (${fmtC0(tt['Promoted'].sales)} · ${promSalesShare.toFixed(1)}%)`,`Brand Halo (${fmtC0(tt['Brand halo'].sales)} · ${haloSalesShare.toFixed(1)}%)`], datasets:[{data:[tt['Promoted'].sales, tt['Brand halo'].sales], backgroundColor:['#f59e0baa','#a78bfa88'], borderColor:[AM,P], borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{legend:{position:'bottom', labels:{padding:12,boxWidth:12}}, tooltip:{callbacks:{label:ctx=>{const pct=ctx.dataIndex===0?promSalesShare:haloSalesShare; return `${ctx.label.split(' (')[0]}: ${fmtC0(ctx.raw)} (${pct.toFixed(1)}%)`;}}}}}});
+  new Chart($('c6'), {type:'doughnut', data:{labels:[`Promoted (${fmt(tt['Promoted'].purchases)} · ${promPurchShare.toFixed(1)}%)`,`Brand Halo (${fmt(tt['Brand halo'].purchases)} · ${haloPurchShare.toFixed(1)}%)`], datasets:[{data:[tt['Promoted'].purchases, tt['Brand halo'].purchases], backgroundColor:['#f59e0baa','#a78bfa88'], borderColor:[AM,P], borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{legend:{position:'bottom', labels:{padding:12,boxWidth:12}}, tooltip:{callbacks:{label:ctx=>{const pct=ctx.dataIndex===0?promPurchShare:haloPurchShare; return `${ctx.label.split(' (')[0]}: ${fmt(ctx.raw)} (${pct.toFixed(1)}%)`;}}}}}});
+  } catch(e){ console.error("Section render error:", e); }
+})();
+
+// ============================================================
+// TAB 3: ATTRIBUTION
+// ============================================================
+(function(){
+  try{
+  const L = DATA.lift;
+  const seq = DATA.seq_summary;
+  const page = $('page-attribution');
+  const roasDSPtoSA = L['Total ROAS']['DSP_then_SA'];
+  const ntbDSPOnly = L['NTB Purchase Rate %']['DSP Only']*100;
+  const salesSAtoDSP = L['Total Product Sales']['SA_then_DSP'];
+
+  // Rank NTB rate across sequences to keep the callout copy honest rather than assuming DSP-only always wins
+  const ntbBySeq = {
+    'SA Only': L['NTB Purchase Rate %']['SA Only']*100,
+    'DSP Only': L['NTB Purchase Rate %']['DSP Only']*100,
+    'DSP → SA': L['NTB Purchase Rate %']['DSP_then_SA']*100,
+    'SA → DSP': L['NTB Purchase Rate %']['SA_then_DSP']*100,
+  };
+  const ntbRanked = Object.entries(ntbBySeq).sort((a,b)=>b[1]-a[1]);
+  const ntbLeader = ntbRanked[0];
+  const dspOnlyIsLeader = ntbLeader[0] === 'DSP Only';
+  const dspOnlyRank = ntbRanked.findIndex(([k])=>k==='DSP Only') + 1;
+
+  page.innerHTML = `
+  <div class="insight-grid">
+    <div class="insight-card"><div class="il">DSP → SA ROAS</div><div class="iv accent-c">${fmtX(roasDSPtoSA)}</div><div class="id">DSP-first journeys drive the highest blended ROAS across all sequences this month</div></div>
+    <div class="insight-card ${dspOnlyIsLeader?'g':'a'}"><div class="il">DSP-Only NTB Rate</div><div class="iv ${dspOnlyIsLeader?'green':'amber'}">${fmtPct(ntbDSPOnly)}</div><div class="id">${dspOnlyIsLeader ? 'Cold-audience DSP impressions deliver the highest new-to-brand rate of any sequence' : `Ranks #${dspOnlyRank} of 4 sequences this month — ${ntbLeader[0]} leads at ${fmtPct(ntbLeader[1])}. DSP-only cold reach still finds new customers, just not at the highest rate.`}</div></div>
+    <div class="insight-card a"><div class="il">SA → DSP Sales</div><div class="iv amber">${fmtC0(salesSAtoDSP)}</div><div class="id">DSP is finishing the job here — closing out sales from our SA retargeting orders rather than sourcing net-new discovery</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">DSP Incremental Lift Analysis — Exposure Sequence DSP Lift (AMC)</div>
+    <div class="callout" style="border-left:3px solid var(--cyan);margin-bottom:14px">
+      <strong style="color:var(--text)">📋 Source:</strong> All figures sourced directly from the <em>Exposure Sequence DSP Lift</em> AMC report. The table mirrors the 5-column structure of that sheet: <strong style="color:var(--text)">SA Only</strong> (full Sponsored Ads baseline) · <strong style="color:var(--cyan)">With DSP</strong> (audiences that saw DSP <em>in addition to</em> SA) · <strong style="color:var(--amber)">DSP Lift %</strong> (incremental improvement vs. SA alone) · <strong style="color:var(--green)">DSP Only</strong> (pure DSP, no SA touchpoint) · <strong style="color:var(--purple)">DSP→SA</strong> · <strong style="color:var(--accent)">SA→DSP</strong>.
+      <br><br><strong style="color:var(--amber)">⚠️ Note:</strong> The <strong style="color:var(--cyan)">"With DSP"</strong> and <strong style="color:var(--amber)">"DSP Lift %"</strong> columns measure DSP's incremental impact <em>when paired with Sponsored Ads</em> — not DSP in isolation. For pure DSP-only performance, see the <strong style="color:var(--green)">DSP Only</strong> column: ${fmtPct(ntbDSPOnly)} NTB rate this month${dspOnlyIsLeader?' — the highest of any sequence':`, which trails ${ntbLeader[0]} (${fmtPct(ntbLeader[1])}) this month`}.
+      <br><br><strong style="color:var(--red)">⚠️ Why "SA Only" spend (${fmtCK(L['Total Cost']['SA Only'])}) looks low vs. total account SA spend:</strong> This AMC report only includes Sponsored Ads campaigns and audiences that were explicitly scoped into the DSP-overlap incrementality study — not the client's full Sponsored Ads budget across all campaigns. It's a deliberately narrow test population, not a full-account SA total, so it will always read lower than what the client sees on their overall SA spend.
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="liftTable">
+        <thead><tr>
+          <th>Metric</th>
+          <th class="num" style="color:var(--muted)">SA Only</th>
+          <th class="num" style="color:var(--cyan)">With DSP</th>
+          <th class="num" style="color:var(--amber)">DSP Lift %<span style="font-weight:400;color:var(--muted);font-size:10px"> (rate metrics only)</span></th>
+          <th class="num" style="color:var(--green)">DSP Only</th>
+          <th class="num" style="color:var(--purple)">DSP → SA</th>
+          <th class="num" style="color:var(--accent)">SA → DSP</th>
+        </tr></thead>
+        <tbody id="liftTbody"></tbody>
+      </table>
+    </div>
+    <div class="callout" style="border-left:3px solid var(--amber);margin-top:12px">
+      <strong style="color:var(--text)">⚠️ Why "With DSP" looks lower than SA Only:</strong> DSP represents a much smaller share of total spend than the mature, full-month Sponsored Ads program, so raw volume is smaller by design. The meaningful signal is the <strong style="color:var(--cyan)">NTB rate and ROAS within DSP-touched sequences</strong>: DSP-only paths reach ${fmtPct(ntbDSPOnly)} NTB, and DSP → SA paths produce ${fmtX(roasDSPtoSA)} ROAS — outcomes SA alone does not replicate.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">ROAS &amp; NTB Rate by Exposure Sequence</div>
+    <div class="callout" style="border-left:3px solid var(--muted);margin-bottom:14px">
+      <strong style="color:var(--text)">ℹ️ Why SA Only shows no ROAS bar:</strong> In the AMC Exposure Sequence report, <em>SA Only</em> cost and sales are reported at the full campaign level rather than allocated per impression sequence, so its ROAS (${fmtX(seq['SA_only'].roas)}) is not directly comparable to DSP-involved sequences and is excluded from the chart below to avoid an apples-to-oranges comparison.
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card"><div class="chart-title">ROAS by Exposure Sequence (DSP-involved paths only)</div><div class="chart-container tall"><canvas id="c7"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">NTB Purchase Rate % by Sequence</div><div class="chart-container tall"><canvas id="c8"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Sales &amp; Purchase Volume by Sequence</div>
+    <div class="chart-grid">
+      <div class="chart-card"><div class="chart-title">Total Product Sales by Sequence</div><div class="chart-container tall"><canvas id="cAttrSales"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">Total Purchases by Sequence</div><div class="chart-container tall"><canvas id="cAttrPurch"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">NTB Deep Dive — Purchases &amp; Sales by Sequence</div>
+    <div class="chart-grid">
+      <div class="chart-card"><div class="chart-title">NTB Purchases vs. Total Purchases</div><div class="chart-container tall"><canvas id="cNTBPurch"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">NTB Sales vs. Total Sales</div><div class="chart-container tall"><canvas id="cNTBSales"></canvas></div></div>
+    </div>
+  </div>
+  `;
+
+  const liftMetrics = [
+    {key:'Total Cost', label:'Total Cost ($)', fmt:'$', isRate:false},
+    {key:'Total Product Sales', label:'Total Product Sales ($)', fmt:'$', isRate:false},
+    {key:'Total ROAS', label:'Total ROAS (×)', fmt:'×', isRate:true},
+    {key:'Total Purchase', label:'Total Purchase', fmt:'', isRate:false},
+    {key:'NTB Purchases', label:'NTB Purchases', fmt:'', isRate:false},
+    {key:'NTB Purchase Rate %', label:'NTB Purchase Rate %', fmt:'%pre', isRate:true},
+    {key:'NTB Sales', label:'NTB Sales ($)', fmt:'$', isRate:false},
+  ];
+  function fmtCell(v, f, cls=''){
+    if(v===null||v===undefined) return `<td class="num ${cls}" style="color:var(--muted)">—</td>`;
+    let d;
+    if(f==='$') d = fmtCK(v);
+    else if(f==='×') d = v.toFixed(2)+'×';
+    else if(f==='%pre') d = (v*100).toFixed(1)+'%';
+    else d = v.toLocaleString('en-US');
+    return `<td class="num ${cls}">${d}</td>`;
+  }
+  const liftTbody = $('liftTbody');
+  liftMetrics.forEach(m=>{
+    const r = L[m.key];
+    const liftVal = r['DSP Lift']*100;
+    const arrow = liftVal>0 ? '▲' : '▼';
+    const isHighlight = m.key==='Total ROAS' || m.key==='NTB Purchase Rate %' || m.key==='NTB Sales';
+    const rowStyle = isHighlight ? 'background:var(--surface2)' : '';
+    const liftCell = m.isRate
+      ? `<td class="num"><span style="color:${liftVal<0?'var(--red)':'var(--green)'};font-weight:700">${arrow} ${Math.abs(liftVal).toFixed(1)}%</span></td>`
+      : `<td class="num" style="color:var(--muted)" title="Not a meaningful lift % — this is a volume metric, and With DSP pools a larger audience than SA Only, so the ratio just reflects cohort size, not incremental performance.">n/a</td>`;
+    liftTbody.insertAdjacentHTML('beforeend', `<tr style="${rowStyle}">
+      <td style="font-weight:${isHighlight?700:500}">${m.label}</td>
+      ${fmtCell(r['SA Only'], m.fmt)}
+      ${fmtCell(r['With DSP'], m.fmt, 'accent-c')}
+      ${liftCell}
+      ${fmtCell(r['DSP Only'], m.fmt, 'good')}
+      ${fmtCell(r['DSP_then_SA'], m.fmt)}
+      ${fmtCell(r['SA_then_DSP'], m.fmt)}
+    </tr>`);
+  });
+
+  const dspSeqOrder = ['DSP_only','DSP_then_SA','SA_then_DSP'];
+  const seqOrderAll = ['DSP_only','DSP_then_SA','SA_then_DSP','SA_only'];
+  const seqLabelMap = {'DSP_only':'DSP Only','DSP_then_SA':'DSP → SA','SA_then_DSP':'SA → DSP','SA_only':'SA Only'};
+
+  new Chart($('c7'), {type:'bar', data:{labels:dspSeqOrder.map(s=>seqLabelMap[s]), datasets:[{label:'ROAS', data:[L['Total ROAS']['DSP Only'], L['Total ROAS']['DSP_then_SA'], L['Total ROAS']['SA_then_DSP']], backgroundColor:['#22c55e88','#f59e0b88','#3b7ff588'], borderColor:[G,AM,A], borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>`ROAS: ${c.raw.toFixed(2)}×`}}}, scales:{y:{grid:{color:'#252f4566'}, ticks:{callback:v=>v+'×'}, beginAtZero:true}}}});
+
+  new Chart($('c8'), {type:'bar', data:{labels:seqOrderAll.map(s=>seqLabelMap[s]), datasets:[{label:'NTB Rate %', data:seqOrderAll.map(s=>seq[s].ntb_rate), backgroundColor:['#22c55e88','#f59e0b88','#3b7ff588','#7a8aaa66'], borderColor:[G,AM,A,MU], borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>`NTB Rate: ${c.raw.toFixed(1)}%`}}}, scales:{y:{grid:{color:'#252f4566'}, ticks:{callback:v=>v+'%'}, beginAtZero:true}}}});
+
+  new Chart($('cAttrSales'), {type:'bar', data:{labels:seqOrderAll.map(s=>seqLabelMap[s]), datasets:[{label:'Total Sales', data:seqOrderAll.map(s=>seq[s].total_all_sales), backgroundColor:'#3b7ff566', borderColor:A, borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, grid:{color:'#252f4566'}, ticks:{callback:v=>'$'+fmt(v)}}}}});
+  new Chart($('cAttrPurch'), {type:'bar', data:{labels:seqOrderAll.map(s=>seqLabelMap[s]), datasets:[{label:'Total Purchases', data:seqOrderAll.map(s=>seq[s].total_all_purchases), backgroundColor:'#f59e0b66', borderColor:AM, borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, grid:{color:'#252f4566'}}}}});
+
+  new Chart($('cNTBPurch'), {type:'bar', data:{labels:seqOrderAll.map(s=>seqLabelMap[s]), datasets:[
+    {label:'Total Purchases', data:seqOrderAll.map(s=>seq[s].total_all_purchases), backgroundColor:'#7a8aaa44', borderColor:MU, borderWidth:1},
+    {label:'NTB Purchases', data:seqOrderAll.map(s=>seq[s].ntb_purchases), backgroundColor:'#22c55e66', borderColor:G, borderWidth:1},
+  ]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:10}}}, scales:{y:{beginAtZero:true, grid:{color:'#252f4566'}}}}});
+  new Chart($('cNTBSales'), {type:'bar', data:{labels:seqOrderAll.map(s=>seqLabelMap[s]), datasets:[
+    {label:'Total Sales', data:seqOrderAll.map(s=>seq[s].total_all_sales), backgroundColor:'#f59e0b33', borderColor:'#f59e0b99', borderWidth:1},
+    {label:'NTB Sales', data:seqOrderAll.map(s=>seq[s].ntb_sales), backgroundColor:'#f59e0b88', borderColor:AM, borderWidth:1},
+  ]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:10}}}, scales:{y:{beginAtZero:true, grid:{color:'#252f4566'}}}}});
+  } catch(e){ console.error("Section render error:", e); }
+})();
+
+// ============================================================
+// TAB 4: AUDIENCE & EXPOSURE
+// ============================================================
+(function(){
+  try{
+  const fsi = DATA.fsi;
+  const ae = fsi['ad-exposed'], nae = fsi['non-ad-exposed'];
+  const multiplier = ae.sales / nae.sales;
+  const ads = DATA.ads;
+  const totalAdsSales = ads.reduce((s,a)=>s+a.sales,0);
+  const multiExposureShare = ads[2].sales/totalAdsSales*100;
+  const tr = DATA.time_rows;
+  const dayOrder = ['1 day','2 days','3 days','4 days','5 days','6 days','7+ days'];
+  const aud = DATA.audience_segments;
+  const page = $('page-funnel');
+
+  page.innerHTML = `
+  <div class="section">
+    <div class="section-title">Ad-Exposed vs. Non-Ad-Exposed Conversion Analysis</div>
+    <div class="chart-grid">
+      <div class="chart-card"><div class="chart-title">Total Product Sales by Exposure Type ($USD)</div><div class="chart-container short"><canvas id="c9"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">User Reach by Exposure Type</div><div class="chart-container short"><canvas id="c10"></canvas></div></div>
+    </div>
+    <div class="data-table-wrap" style="margin-top:20px"><table class="data-table">
+      <thead><tr><th>Exposure Type</th><th class="num">Detail Page Views</th><th class="num">Add to Cart</th><th class="num">Purchases</th><th class="num">Total Sales ($)</th><th class="num">User Count</th><th class="num">Conv. Events</th></tr></thead>
+      <tbody>
+        <tr><td><span style="color:var(--accent);font-weight:700">Ad-Exposed</span></td><td class="num accent-c">${fmt(ae.dpv)}</td><td class="num">${fmt(ae.atc)}</td><td class="num good">${fmt(ae.purchase)}</td><td class="num good">${fmtC0(ae.sales)}</td><td class="num">${fmt(ae.user_cnt)}</td><td class="num">${fmt(ae.conversion)}</td></tr>
+        <tr><td><span style="color:var(--muted);font-weight:600">Non-Ad-Exposed</span></td><td class="num">${fmt(nae.dpv)}</td><td class="num">${fmt(nae.atc)}</td><td class="num">${fmt(nae.purchase)}</td><td class="num">${fmtC0(nae.sales)}</td><td class="num">${fmt(nae.user_cnt)}</td><td class="num">${fmt(nae.conversion)}</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout" style="border-left:3px solid var(--amber);margin-top:14px"><strong style="color:var(--text)">📐 Scope Note:</strong> This AMC audience report covers <strong style="color:var(--amber)">the full American Flat catalog</strong> (all ASINs, all ad types) across <strong style="color:var(--amber)">the entire month of October 2026</strong> — not just DSP line items. "Ad-Exposed" includes any user who saw any Amazon ad (DSP, Sponsored Products, Sponsored Display, etc.) at any point in the month.</div>
+    <div class="callout" style="border-left:3px solid var(--red)"><strong style="color:var(--text)">⚠️ Can't split this into DSP-only / SA-only / non-exposed:</strong> This specific AMC report ("FSI-Exposed") only returns two buckets — Ad-Exposed (any ad type combined) and Non-Ad-Exposed. It doesn't break the exposed group down by ad type, so we can't produce a true DSP-vs-SA-vs-none full-funnel split from this data without a new AMC audience query built specifically for that segmentation. The closest thing we have today is the <strong style="color:var(--text)">DSP Lift &amp; Sequencing</strong> tab, which does separate SA Only / DSP Only / DSP→SA / SA→DSP — but that's scoped to a narrower incrementality-test cohort, not the full catalog shown here, so the two aren't directly comparable.</div>
+    <div class="callout" style="border-left:3px solid ${multiplier<1?'var(--red)':'var(--green)'}"><strong style="color:var(--text)">📊 Key Finding:</strong> Non-ad-exposed shoppers generated <strong style="color:var(--text)">${fmtC0(nae.sales)}</strong> versus <strong style="color:var(--text)">${fmtC0(ae.sales)}</strong> for ad-exposed shoppers this month — ${multiplier<1 ? `non-ad-exposed sales were <strong style="color:var(--red)">${(1/multiplier).toFixed(1)}× higher</strong>, a reversal from the cold-audience skew typical of a launch month` : `a <strong style="color:var(--green)">${multiplier.toFixed(1)}× revenue multiplier</strong> for ad-exposed shoppers`}. This reflects the much larger reach of non-ad-exposed organic/returning shoppers across the full catalog in a mature month, not a decline in DSP effectiveness within its own targeted audience.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Exposure Frequency Analysis</div>
+    <div class="callout" style="border-left:3px solid var(--muted);margin-bottom:14px"><strong style="color:var(--text)">ℹ️ On limiting this to 3+ exposures only:</strong> The source AMC report only breaks Sales and DPV out by exposure frequency (Single / Double / Multi 3+) — it doesn't carry Purchases, ATC, or User Count at that same cut, so a full-funnel "3+ only" view isn't available without a differently-scoped AMC query. What we can show cleanly is the Sales and DPV spotlight below.</div>
+    <div class="insight-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:20px">
+      <div class="insight-card g"><div class="il">3+ Exposure Sales</div><div class="iv" style="color:var(--green)">${fmtC0(ads[2].sales)}</div><div class="id">${fmtPct(multiExposureShare)} of total sales in the exposure-tagged cohort — by far the largest share</div></div>
+      <div class="insight-card g"><div class="il">3+ Exposure DPV</div><div class="iv" style="color:var(--green)">${fmt(ads[2].dpv)}</div><div class="id">${fmtPct(ads[2].dpv/(ads[0].dpv+ads[1].dpv+ads[2].dpv)*100)} of total detail page views in the cohort</div></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card"><div class="chart-title">Total Product Sales ($USD) by Ad Exposure Frequency</div><div class="chart-container short"><canvas id="c11"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">Detail Page Views by Exposure Frequency</div><div class="chart-container short"><canvas id="c12"></canvas></div></div>
+    </div>
+    <div class="callout" style="border-left:3px solid var(--cyan)"><strong style="color:var(--text)">🔁 Frequency Effect:</strong> Multi-exposed users (3+ ads) account for <strong style="color:var(--cyan)">${fmtPct(multiExposureShare)}</strong> of total product sales among the exposure-tagged cohort — repeated ad exposure is associated with meaningfully higher purchase intent.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Purchase Lead Time by Shopper Type</div>
+    <div class="callout" style="border-left:3px solid var(--muted);margin-bottom:14px"><strong style="color:var(--text)">ℹ️ Chart note:</strong> This chart compares purchase timing across <strong style="color:var(--text)">two shopper groups</strong>: (1) <strong style="color:var(--accent)">Ad-Exposed shoppers</strong> — lead time counted from their <em>first ad impression</em> to purchase. (2) <strong style="color:var(--amber)">Non-Ad-Exposed shoppers</strong> — customers who purchased with no ad touchpoint; included as a baseline for comparison where available.</div>
+    <div class="chart-card full"><div class="chart-title">Days to Purchase: Ad-Exposed (from first impression) vs. Non-Ad-Exposed (baseline)</div><div class="chart-container tall"><canvas id="c13"></canvas></div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🎯 Per-Audience Segment Performance</div>
+    <div class="callout" style="border-left:3px solid var(--cyan);margin-bottom:16px">
+      <strong style="color:var(--text)">📐 Audience Report view (Oct 1–31):</strong> Sourced from the Audience Report sheet, this section covers all ${aud.total_segments} audience segments (lifestyle interests, in-market categories, and custom AMC audiences) for the report window of October 1–31. Segments overlap, so a single impression’s cost is counted under every segment it matched — segment totals should not be summed and are on a different scale than the October KPIs elsewhere in this report. Use this to identify which audience types are most cost-efficient and highest-NTB for future budget allocation.
+    </div>
+    <div class="insight-grid">
+      <div class="insight-card"><div class="il">Top Segment by Spend</div><div class="iv" style="font-size:16px">${esc(aud.top_spend_segment.segment)}</div><div class="id">${fmtC0(aud.top_spend_segment.cost)} spend · ${fmt(aud.top_spend_segment.purchases)} purchases · ${fmtC(aud.top_spend_segment.cpa)} CPA</div></div>
+      <div class="insight-card g"><div class="il">Best NTB Segment</div><div class="iv" style="font-size:16px">${esc(aud.top10_ntb[0].segment)}</div><div class="id">${fmtPct(aud.top10_ntb[0].pct_ntb)} NTB rate — ${fmt(aud.top10_ntb[0].ntb)} of ${fmt(aud.top10_ntb[0].purchases)} purchases from new customers</div></div>
+      <div class="insight-card a"><div class="il">Most Efficient CPA</div><div class="iv amber">${fmtC(aud.most_efficient_cpa.cpa)}</div><div class="id">${esc(aud.most_efficient_cpa.segment)} — lowest cost per purchase (min. 10 purchases & $100+ spend)</div></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card"><div class="chart-title">Top 15 Audience Segments by Spend</div><div class="chart-container tall"><canvas id="cAudSpend"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">Cost Per Acquisition (CPA) — Top 15 Segments</div><div class="chart-container tall"><canvas id="cAudCPA"></canvas></div></div>
+    </div>
+    <div class="chart-grid" style="margin-top:18px">
+      <div class="chart-card full"><div class="chart-title">NTB Purchases vs. Total Purchases — Top 15 Segments</div><div class="chart-container tall"><canvas id="cAudNTB"></canvas></div></div>
+    </div>
+    <div class="section-title" style="margin-top:24px">Full Funnel by Audience Segment — Top 15 by Spend</div>
+    <div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>Audience Segment</th><th class="num">Spend</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">DPV</th><th class="num">ATC</th><th class="num">Purchases</th><th class="num">NTB</th><th class="num">% NTB</th><th class="num">CPA</th></tr></thead>
+      <tbody id="audSpendTbody"></tbody>
+    </table></div>
+    <div class="section-title" style="margin-top:24px">Top 10 Audience Segments by NTB Rate (min. 10 purchases & $100+ spend)</div>
+    <div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>Rank</th><th>Audience Segment</th><th class="num">Purchases</th><th class="num">NTB Purchases</th><th class="num">% NTB</th></tr></thead>
+      <tbody id="audNtbTbody"></tbody>
+    </table></div>
+  </div>
+  `;
+
+  DATA.audience_segments.top15_spend.forEach(s=>{
+    $('audSpendTbody').insertAdjacentHTML('beforeend', `<tr><td style="font-size:12px">${esc(s.segment)}</td><td class="num accent-c">${fmtC0(s.cost)}</td><td class="num">${fmt(s.impressions)}</td><td class="num">${fmt(s.clicks)}</td><td class="num">${s.ctr.toFixed(2)}%</td><td class="num">${fmt(s.dpv)}</td><td class="num">${fmt(s.atc)}</td><td class="num good">${fmt(s.purchases)}</td><td class="num good">${fmt(s.ntb)}</td><td class="num good">${fmtPct(s.pct_ntb)}</td><td class="num">${s.cpa?fmtC(s.cpa):'—'}</td></tr>`);
+  });
+  DATA.audience_segments.top10_ntb.forEach((s,i)=>{
+    $('audNtbTbody').insertAdjacentHTML('beforeend', `<tr><td class="rank" style="font-weight:700;color:${MU}">#${i+1}</td><td style="font-size:12px">${esc(s.segment)}</td><td class="num">${fmt(s.purchases)}</td><td class="num good">${fmt(s.ntb)}</td><td class="num good">${fmtPct(s.pct_ntb)}</td></tr>`);
+  });
+
+  const audTop15 = DATA.audience_segments.top15_spend;
+  new Chart($('cAudSpend'), {type:'bar', data:{labels:audTop15.map(s=>s.segment.length>22?s.segment.slice(0,22)+'…':s.segment), datasets:[{label:'Spend ($)', data:audTop15.map(s=>s.cost), backgroundColor:'#3b7ff566', borderColor:A, borderWidth:1}]}, options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{color:'#252f4566'}, ticks:{callback:v=>'$'+fmt(v)}}}}});
+  new Chart($('cAudCPA'), {type:'bar', data:{labels:audTop15.map(s=>s.segment.length>22?s.segment.slice(0,22)+'…':s.segment), datasets:[{label:'CPA ($)', data:audTop15.map(s=>s.cpa||0), backgroundColor:'#f59e0b66', borderColor:AM, borderWidth:1}]}, options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{color:'#252f4566'}, ticks:{callback:v=>'$'+v}}}}});
+  new Chart($('cAudNTB'), {type:'bar', data:{labels:audTop15.map(s=>s.segment.length>18?s.segment.slice(0,18)+'…':s.segment), datasets:[
+    {label:'Total Purchases', data:audTop15.map(s=>s.purchases), backgroundColor:'#7a8aaa44', borderColor:MU, borderWidth:1},
+    {label:'NTB Purchases', data:audTop15.map(s=>s.ntb), backgroundColor:'#22c55e77', borderColor:G, borderWidth:1},
+  ]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:10}}}, scales:{y:{grid:{color:'#252f4566'}}, x:{ticks:{maxRotation:45, minRotation:45, font:{size:9}}}}}});
+
+  new Chart($('c9'), {type:'bar', data:{labels:['Ad-Exposed','Non-Ad-Exposed'], datasets:[{data:[ae.sales, nae.sales], backgroundColor:['#3b7ff588','#7a8aaa66'], borderColor:[A,MU], borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#252f4566'}, ticks:{callback:v=>'$'+fmt(v)}}}}});
+  new Chart($('c10'), {type:'bar', data:{labels:['Ad-Exposed','Non-Ad-Exposed'], datasets:[{data:[ae.user_cnt, nae.user_cnt], backgroundColor:['#f59e0b88','#7a8aaa66'], borderColor:[AM,MU], borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#252f4566'}}}}});
+
+  new Chart($('c11'), {type:'bar', data:{labels:['Single (1)','Double (2)','Multi (3+)'], datasets:[{data:ads.map(a=>a.sales), backgroundColor:['#7a8aaa66','#f59e0b66','#22d3ee88'], borderColor:[MU,AM,C], borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#252f4566'}, ticks:{callback:v=>'$'+fmt(v)}}}}});
+  new Chart($('c12'), {type:'bar', data:{labels:['Single (1)','Double (2)','Multi (3+)'], datasets:[{data:ads.map(a=>a.dpv), backgroundColor:['#7a8aaa66','#f59e0b66','#a78bfa88'], borderColor:[MU,AM,P], borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'#252f4566'}}}}});
+
+  new Chart($('c13'), {type:'bar', data:{labels:dayOrder, datasets:[
+    {label:'Ad-Exposed', data:dayOrder.map(d=>(tr['ad-exposed']||{})[d]||0), backgroundColor:'#3b7ff588', borderColor:A, borderWidth:1},
+    {label:'Non-Ad-Exposed', data:dayOrder.map(d=>(tr['non-ad-exposed']||{})[d]||0), backgroundColor:'#7a8aaa55', borderColor:MU, borderWidth:1},
+  ]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:10}}}, scales:{y:{type:'logarithmic', grid:{color:'#252f4566'}}}}});
+  } catch(e){ console.error("Section render error:", e); }
+})();
+
+
+// ============================================================
+// TAB 5: PATH TO CONVERSION
+// ============================================================
+(function(){
+  try{
+  const pg = DATA.path_groups;
+  const page = $('page-paths');
+  const spCR = pg.SP.conv_rate, dspCR = pg.DSP.conv_rate, sbCR = pg.SB.conv_rate;
+  const crChange = (dspCR - spCR)/spCR*100;
+  const mp = DATA.matched_pairs;
+  const mpRow = pth => { const r = mp.find(x=>x[0]===pth); return r ? {users:r[2],conv:r[3],cr:r[4],rev:r[5]} : {users:0,conv:0,cr:0,rev:0}; };
+  const d5 = mpRow('DSP > SP > SP > SP > SP'), s5 = mpRow('SP > SP > SP > SP > SP');
+  const hp = DATA.dsp_paths.filter(x=>x.converting>=20).sort((x,y)=>y.conv_rate-x.conv_rate)[0] || DATA.dsp_paths[0];
+
+  page.innerHTML = `
+  <div class="insight-grid">
+    <div class="insight-card g"><div class="il">DSP×5 Conv. Rate</div><div class="iv green">${fmtPct(d5.cr,2)}</div><div class="id">DSP-first repeat exposure (DSP→SP×4): ${fmt(d5.users)} users → ${fmt(d5.conv)} converters, ${fmtC0(d5.rev)} revenue — ${(d5.cr/s5.cr).toFixed(1)}× the pure SP×5 rate (${fmtPct(s5.cr,2)})</div></div>
+    <div class="insight-card a"><div class="il">Highest DSP CR Path</div><div class="iv amber">${fmtPct(hp.conv_rate*100,2)}</div><div class="id">${hp.path.replace(/ > /g,'→')} — ${fmt(hp.users)} users, ${fmt(hp.converting)} converters, ${fmtC0(hp.revenue)} revenue (min. 20 converters)</div></div>
+    <div class="insight-card"><div class="il">DSP-Touched Rev/Conv.</div><div class="iv accent-c">${fmtC(pg.DSP.rev_per_conv)}</div><div class="id">vs. ${fmtC(pg.SP.rev_per_conv)} for SP-only and ${fmtC(pg.SB.rev_per_conv)} for SB-touched paths</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">DSP Impact: SP-Only vs. DSP-Touched Paths</div>
+    <div class="callout" style="border-left:3px solid var(--cyan);margin-bottom:16px">
+      <strong style="color:var(--text)">🎯 Reading this table:</strong> Each pair compares an SP-base path against its DSP-enhanced equivalent (same SP backbone, DSP inserted at a different point in the journey). Green = DSP improves the metric versus its paired SP-only baseline; red = it doesn't.
+    </div>
+    <div class="data-table-wrap"><table class="data-table">
+      <thead><tr>
+        <th>Path</th>
+        <th>Type</th>
+        <th class="num">Users</th>
+        <th class="num">Converting</th>
+        <th class="num">Conv. Rate</th>
+        <th class="num">Revenue ($)</th>
+        <th class="num">Rev/Converter</th>
+        <th class="num">CR Δ vs SP-Only</th>
+      </tr></thead>
+      <tbody id="dspImpactTbody"></tbody>
+    </table></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">SP-Only vs. DSP-Touched vs. SB-Touched — Aggregate Performance</div>
+    <div class="chart-grid">
+      <div class="chart-card"><div class="chart-title">Conversion Rate: SP-Only vs. DSP-Touched vs. SB-Touched</div><div class="chart-container short"><canvas id="cPtcCR"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">Revenue per Converter</div><div class="chart-container short"><canvas id="cPtcRPC"></canvas></div></div>
+    </div>
+    <div class="data-table-wrap" style="margin-top:16px"><table class="data-table">
+      <thead><tr><th>Path Group</th><th class="num">Unique Paths</th><th class="num">Total Users</th><th class="num">Converting Users</th><th class="num">Avg Conv. Rate</th><th class="num">Total Revenue</th><th class="num">Avg Rev/Converter</th></tr></thead>
+      <tbody>
+        <tr><td><span style="color:var(--muted);font-weight:600">SP-Only Paths</span></td><td class="num">${fmt(pg.SP.unique_paths)}</td><td class="num">${fmt(pg.SP.users)}</td><td class="num">${fmt(pg.SP.converting)}</td><td class="num">${fmtPct(pg.SP.conv_rate,2)}</td><td class="num good">${fmtC0(pg.SP.revenue)}</td><td class="num">${fmtC(pg.SP.rev_per_conv)}</td></tr>
+        <tr><td><span style="color:var(--cyan);font-weight:700">DSP-Touched Paths</span></td><td class="num">${fmt(pg.DSP.unique_paths)}</td><td class="num">${fmt(pg.DSP.users)}</td><td class="num">${fmt(pg.DSP.converting)}</td><td class="num">${fmtPct(pg.DSP.conv_rate,2)}</td><td class="num good">${fmtC0(pg.DSP.revenue)}</td><td class="num">${fmtC(pg.DSP.rev_per_conv)}</td></tr>
+        <tr><td><span style="color:var(--purple);font-weight:600">SB-Touched Paths</span></td><td class="num">${fmt(pg.SB.unique_paths)}</td><td class="num">${fmt(pg.SB.users)}</td><td class="num">${fmt(pg.SB.converting)}</td><td class="num">${fmtPct(pg.SB.conv_rate,2)}</td><td class="num good">${fmtC0(pg.SB.revenue)}</td><td class="num">${fmtC(pg.SB.rev_per_conv)}</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout" style="border-left:3px solid ${crChange<0?'var(--red)':'var(--green)'};margin-top:12px">
+      <strong style="color:var(--text)">📈 Key Finding:</strong> DSP-touched paths convert at <strong style="color:${crChange<0?'var(--red)':'var(--green)'}">${fmtPct(dspCR,2)}</strong> — ${crChange<0?`${Math.abs(crChange).toFixed(0)}% below`:`${crChange.toFixed(0)}% above`} the ${fmtPct(spCR,2)} SP-only rate — and produce ${pg.DSP.rev_per_conv > pg.SP.rev_per_conv && pg.DSP.rev_per_conv > pg.SB.rev_per_conv ? 'the highest revenue per converter of any path group' : `${fmtC(pg.DSP.rev_per_conv)} in revenue per converter`}.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Top 12 Paths to Conversion — by Conversion Rate, min. 20 converters (October 2026)</div>
+    <div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>Rank</th><th>Path</th><th class="num">Total Users</th><th class="num">Converting</th><th class="num">Conv. Rate</th><th class="num">Revenue</th><th class="num">Rev/Converter</th></tr></thead>
+      <tbody id="ptcTbody"></tbody>
+    </table></div>
+  </div>
+  `;
+
+  // DSP Impact matched-pairs table — data pulled directly from October PTC-Full Path report
+  const spBaselineCR = pg.SP.conv_rate;
+  const dspImpactRows = [
+    ...DATA.matched_pairs,
+    ['(Any SP path)',  'SP-Only Aggregate',    pg.SP.users,  pg.SP.converting,  pg.SP.conv_rate,  pg.SP.revenue,  pg.SP.rev_per_conv],
+    ['(Any DSP path)', 'DSP-Touched Aggregate',pg.DSP.users, pg.DSP.converting, pg.DSP.conv_rate, pg.DSP.revenue, pg.DSP.rev_per_conv],
+  ];
+
+  const dspImpactTbody = $('dspImpactTbody');
+  dspImpactRows.forEach((row, i) => {
+    const [path, type, users, converting, cr, revenue, rpc] = row;
+    const isDSP = type.includes('DSP') || type.includes('Aggregate');
+    const isAggregate = type.includes('Aggregate');
+
+    let delta = '';
+    if (isDSP && !isAggregate) {
+      const pairedCR = dspImpactRows[i-1] ? dspImpactRows[i-1][4] : spBaselineCR;
+      const pct = ((cr - pairedCR) / pairedCR * 100);
+      const good = pct >= 0;
+      delta = `<span style="color:${good?'var(--green)':'var(--red)'};font-weight:700">${pct>=0?'+':''}${pct.toFixed(0)}%</span>`;
+    } else if (isAggregate && isDSP) {
+      const pct = ((cr - spBaselineCR) / spBaselineCR * 100);
+      const good = pct >= 0;
+      delta = `<span style="color:${good?'var(--green)':'var(--red)'};font-weight:700">${pct>=0?'+':''}${pct.toFixed(0)}% vs SP-only</span>`;
+    } else if (isAggregate) {
+      delta = '<span style="color:var(--muted)">baseline</span>';
+    }
+
+    const rowBg = isAggregate ? 'background:var(--surface2)' : '';
+    const pathStyle = isDSP ? `font-family:monospace;font-size:11px;color:${C};font-weight:600` : `font-family:monospace;font-size:11px;color:${MU}`;
+    const typeTag = isDSP
+      ? `<span style="font-size:10px;font-weight:700;color:${C};background:#22d3ee18;border:1px solid #22d3ee44;border-radius:10px;padding:2px 7px">${type}</span>`
+      : `<span style="font-size:10px;font-weight:600;color:${MU};background:#7a8aaa18;border:1px solid #7a8aaa33;border-radius:10px;padding:2px 7px">${type}</span>`;
+    const pathLen = path.startsWith('(') ? -1 : path.split('>').length;
+    const prevLen = i>0 ? (dspImpactRows[i-1][0].startsWith('(') ? -1 : dspImpactRows[i-1][0].split('>').length) : null;
+    const isPairStart = (i===0) || (pathLen !== prevLen);
+    const borderTop = (isPairStart && i>0) ? 'border-top:2px solid var(--border)' : '';
+
+    dspImpactTbody.insertAdjacentHTML('beforeend', `<tr style="${rowBg};${borderTop}">
+      <td style="${pathStyle}">${path}</td>
+      <td>${typeTag}</td>
+      <td class="num">${fmt(users)}</td>
+      <td class="num">${fmt(converting)}</td>
+      <td class="num ${isDSP?'good':''}">${cr.toFixed(2)}%</td>
+      <td class="num good">${fmtC0(revenue)}</td>
+      <td class="num">${fmtC(rpc)}</td>
+      <td class="num">${delta}</td>
+    </tr>`);
+  });
+
+  DATA.top12_paths.forEach((p,i)=>{
+    const hasDSP = p.path.includes('DSP');
+    $('ptcTbody').insertAdjacentHTML('beforeend', `<tr><td style="font-weight:700;color:${MU}">#${i+1}</td><td style="font-family:monospace;font-size:11px;color:${hasDSP?C:MU}">${p.path}</td><td class="num">${fmt(p.users)}</td><td class="num">${fmt(p.converting)}</td><td class="num ${p.conv_rate*100>3?'good':''}">${fmtPct(p.conv_rate*100,2)}</td><td class="num good">${fmtC0(p.revenue)}</td><td class="num">${p.rev_per_conv?fmtC(p.rev_per_conv):'—'}</td></tr>`);
+  });
+  new Chart($('cPtcCR'), {type:'bar', data:{labels:['SP Only','DSP-Touched','SB-Touched'], datasets:[{label:'Conv. Rate %', data:[spCR,dspCR,sbCR], backgroundColor:['#7a8aaa44','#22d3ee66','#a78bfa66'], borderColor:[MU,C,P], borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>`Conv. Rate: ${c.raw.toFixed(2)}%`}}}, scales:{y:{grid:{color:'#252f4566'}, ticks:{callback:v=>v+'%'}, beginAtZero:true}}}});
+  new Chart($('cPtcRPC'), {type:'bar', data:{labels:['SP Only','DSP-Touched','SB-Touched'], datasets:[{label:'Rev per Converter ($)', data:[pg.SP.rev_per_conv,pg.DSP.rev_per_conv,pg.SB.rev_per_conv], backgroundColor:['#7a8aaa44','#22d3ee66','#a78bfa66'], borderColor:[MU,C,P], borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>`$${c.raw.toFixed(2)}`}}}, scales:{y:{grid:{color:'#252f4566'}, ticks:{callback:v=>'$'+v}}}}});
+  } catch(e){ console.error("Section render error:", e); }
+})();
+
+// ============================================================
+// TAB 6: CART ABANDONMENT
+// ============================================================
+(function(){
+  try{
+  const ca = DATA.cart_abandonment;
+  if(!ca){ return; }
+  const page = $('page-cart');
+  const s1 = ca.section1_all;
+  const s2 = ca.section2_dsp;
+  const real1 = s1.filter(r=>/^B0/.test(r.parent_asin)); const pool1 = real1.length ? real1 : s1;
+  const best = pool1.reduce((a,b)=> a.cart_abandonment_rate_pct < b.cart_abandonment_rate_pct ? a : b);
+  const worst = pool1.reduce((a,b)=> a.cart_abandonment_rate_pct > b.cart_abandonment_rate_pct ? a : b);
+  const bestDsp = s2.reduce((a,b)=> a.cart_abandonment_rate_pct < b.cart_abandonment_rate_pct ? a : b, s2[0]);
+  const worstDsp = s2.reduce((a,b)=> a.cart_abandonment_rate_pct > b.cart_abandonment_rate_pct ? a : b, s2[0]);
+  const topDspByAtc = [...s2].sort((a,b)=>b.atc_unique_users - a.atc_unique_users)[0];
+
+  function rateColor(r){ return r>=60 ? R : r<=45 ? G : AM; }
+  function rateStatus(r){ return r>=60 ? 'High Risk' : r<=45 ? 'Strong' : 'Moderate'; }
+
+  page.innerHTML = `
+  <div class="insight-grid">
+    <div class="insight-card a"><div class="il">Avg Abandonment Rate</div><div class="iv amber">${ca.avg_abandon_all.toFixed(1)}%</div><div class="id">Across top 15 parent ASINs by ATC volume — all tracked products</div></div>
+    <div class="insight-card g"><div class="il">Best Performer</div><div class="iv green">${best.cart_abandonment_rate_pct.toFixed(1)}%</div><div class="id">${best.parent_asin} — lowest abandonment: ${fmt(best.purchase_unique_users)} of ${fmt(best.atc_unique_users)} ATC users converted</div></div>
+    <div class="insight-card r"><div class="il">Recovery Opportunity</div><div class="iv" style="color:var(--red);font-size:18px">${worst.parent_asin}</div><div class="id">${fmt(worst.atc_unique_users)} ATC users, only ${(100-worst.cart_abandonment_rate_pct).toFixed(1)}% converted — ${worst.cart_abandonment_rate_pct.toFixed(1)}% abandonment rate</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Section 1 — All Tracked ASINs: Cart Abandonment Rate by Parent ASIN (Top 15 by ATC Volume)</div>
+    <div class="section-title" style="margin-top:0">Detail Table: Top 15 ASINs (All Tracked)</div>
+    <div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>Rank</th><th>Parent ASIN</th><th class="num">ATC Users</th><th class="num">Purchase Users</th><th class="num">Abandon Rate %</th><th>Status</th></tr></thead>
+      <tbody id="cartS1Tbody"></tbody>
+    </table></div>
+    <div class="callout" style="border-left:3px solid var(--cyan);margin-top:14px"><strong style="color:var(--text)">💡 Opportunity:</strong> ASINs with abandonment rates above 60% are prime candidates for DSP cart-abandonment retargeting campaigns.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Section 2 — DSP-Advertised ASINs Only</div>
+    <div class="callout" style="border-left:3px solid var(--purple);margin-bottom:14px"><strong style="color:var(--text)">🔗 Scope:</strong> Filtered to the <strong style="color:var(--purple)">${ca.dsp_parent_count} parent ASINs</strong> that were directly advertised through DSP during October (cross-referenced with the ASIN Performance tab).</div>
+    <div class="insight-grid">
+      <div class="insight-card"><div class="il">DSP-Advertised Avg Rate</div><div class="iv accent-c">${ca.avg_abandon_dsp.toFixed(1)}%</div><div class="id">Across all ${ca.dsp_parent_count} DSP-advertised ASINs</div></div>
+      <div class="insight-card"><div class="il">Top DSP ASIN by ATC</div><div class="iv" style="font-size:16px">${topDspByAtc.parent_asin}</div><div class="id">${esc(topDspByAtc.product_name.split(' - ').slice(0,2).join(' - ') || topDspByAtc.product_name.slice(0,40))} — ${fmt(topDspByAtc.atc_unique_users)} ATC users, ${topDspByAtc.cart_abandonment_rate_pct.toFixed(1)}% abandonment</div></div>
+      <div class="insight-card r"><div class="il">Highest-Risk DSP ASIN</div><div class="iv" style="color:var(--red);font-size:16px">${worstDsp.parent_asin}</div><div class="id">${esc(worstDsp.product_name.split(' - ').slice(0,2).join(' - ') || worstDsp.product_name.slice(0,40))} — ${worstDsp.cart_abandonment_rate_pct.toFixed(1)}% abandonment, weakest converter</div></div>
+    </div>
+    <div class="chart-card full"><div class="chart-title">Cart Abandonment Rate — DSP-Advertised ASINs by ATC Volume</div><div class="chart-container xtall"><canvas id="cCartS2"></canvas></div></div>
+    <div class="data-table-wrap" style="margin-top:16px"><table class="data-table">
+      <thead><tr><th>Rank</th><th>ASIN</th><th>Product Name</th><th class="num">ATC Users</th><th class="num">Purchase Users</th><th class="num">Abandon Rate %</th><th>Status</th></tr></thead>
+      <tbody id="cartS2Tbody"></tbody>
+    </table></div>
+    <div class="callout" style="border-left:3px solid ${Math.abs(ca.avg_abandon_dsp-ca.avg_abandon_all)<3?'var(--muted)':'var(--amber)'};margin-top:14px">
+      <strong style="color:var(--text)">📊 Takeaway:</strong> DSP-advertised products show ${Math.abs(ca.avg_abandon_dsp-ca.avg_abandon_all)<3?'a similar':'a different'} abandonment rate (${ca.avg_abandon_dsp.toFixed(1)}%) ${Math.abs(ca.avg_abandon_dsp-ca.avg_abandon_all)<3?'to':'versus'} the broader catalog (${ca.avg_abandon_all.toFixed(1)}%)${Math.abs(ca.avg_abandon_dsp-ca.avg_abandon_all)<3?", indicating DSP-driven traffic does not carry meaningfully different purchase intent at the cart stage. The opportunity lies upstream — driving more ATC volume via DSP, since conversion rates downstream of cart are stable.":'.'}
+    </div>
+  </div>
+  `;
+
+  s1.forEach((r,i)=>{
+    $('cartS1Tbody').insertAdjacentHTML('beforeend', `<tr><td class="rank" style="font-weight:700;color:${MU}">#${i+1}</td><td style="font-family:monospace;font-size:11px;color:${C}">${r.parent_asin}</td><td class="num">${fmt(r.atc_unique_users)}</td><td class="num good">${fmt(r.purchase_unique_users)}</td><td class="num" style="color:${rateColor(r.cart_abandonment_rate_pct)};font-weight:700">${r.cart_abandonment_rate_pct.toFixed(1)}%</td><td><span class="tag" style="color:${rateColor(r.cart_abandonment_rate_pct)};background:${rateColor(r.cart_abandonment_rate_pct)}22;border:1px solid ${rateColor(r.cart_abandonment_rate_pct)}44">${rateStatus(r.cart_abandonment_rate_pct)}</span></td></tr>`);
+  });
+  s2.forEach((r,i)=>{
+    $('cartS2Tbody').insertAdjacentHTML('beforeend', `<tr><td class="rank" style="font-weight:700;color:${MU}">#${i+1}</td><td style="font-family:monospace;font-size:11px;color:${P};font-weight:600">${r.parent_asin}</td><td class="prod-cell" style="font-size:11px">${esc(r.product_name)}</td><td class="num">${fmt(r.atc_unique_users)}</td><td class="num good">${fmt(r.purchase_unique_users)}</td><td class="num" style="color:${rateColor(r.cart_abandonment_rate_pct)};font-weight:700">${r.cart_abandonment_rate_pct.toFixed(1)}%</td><td><span class="tag" style="color:${rateColor(r.cart_abandonment_rate_pct)};background:${rateColor(r.cart_abandonment_rate_pct)}22;border:1px solid ${rateColor(r.cart_abandonment_rate_pct)}44">${rateStatus(r.cart_abandonment_rate_pct)}</span></td></tr>`);
+  });
+
+  new Chart($('cCartS2'), {type:'bar', data:{
+    labels: s2.map(r=>r.parent_asin),
+    datasets:[{label:'Abandonment Rate %', data:s2.map(r=>r.cart_abandonment_rate_pct), backgroundColor:s2.map(r=>rateColor(r.cart_abandonment_rate_pct)+'88'), borderColor:s2.map(r=>rateColor(r.cart_abandonment_rate_pct)), borderWidth:1}]
+  }, options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>`${c.raw.toFixed(1)}%`}}}, scales:{x:{grid:{color:'#252f4566'}, ticks:{callback:v=>v+'%'}, max:100}}}});
+  } catch(e){ console.error("Section render error:", e); }
+})();
+</script>
+</body>
+</html>
